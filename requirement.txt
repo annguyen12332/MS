@@ -1,0 +1,30 @@
+1.Tên đồ án: 
+Xây dựng Ứng dụng web quản lý Đào tạo ngắn hạn tại Trường Đại học Sư phạm Kỹ thuật Nam Định
+2. Phạm vi nghiên cứu:
+Đề tài tập trung nghiên cứu, thiết kế và xây dựng ứng dụng Web nhằm hỗ trợ công tác quản lý các hoạt động đào tạo ngắn hạn tại Trường Đại học Sư phạm Kỹ thuật Nam Định. Các chương trình đào tạo bao gồm: Ứng dụng công nghệ thông tin đạt chuyển đầu ra trình độ đại học, Ngoại ngữ, Kỹ năng mềm, Bồi dưỡng chứng chỉ nghiệp vụ sư phạm và các khóa đào tạo chuyên đề khác.
+Về chức năng
+Quản lý thông tin khóa học: tên khóa học, nội dung đào tạo, thời lượng, học phí, thời gian tổ chức, giảng viên phụ trách;
+Quản lý đăng ký học: hỗ trợ học viên trong và ngoài trường đăng ký tham gia các khóa học;
+Quản lý lớp học, phân công giảng viên, lập thời khóa biểu;
+Quản lý quá trình học tập: điểm danh, nhập điểm, đánh giá kết quả học tập;
+Cấp chứng chỉ hoàn thành khóa học;
+Quản lý thống kê, báo cáo phục vụ công tác điều hành và ra quyết định của nhà trường.
+Về người dùng
+Quản trị viên: Quản lý toàn bộ hệ thống, giảng viên, lớp học, khóa học, học viên.
+Giảng viên: Xem lịch dạy, điểm danh, nhập điểm.
+Học viên: Đăng ký khóa học, xem lịch học, tài liệu, điểm.
+Về công nghệ
+Ứng dụng web phát triển theo mô hình MVC;
+Frontend: HTML5, CSS3, JavaScript, Bootstrap hoặc Tailwind CSS;
+Backend: PHP (Laravel) hoặc Java (Spring Boot);
+Cơ sở dữ liệu: MySQL hoặc SQL;
+Công cụ: Visual Studio Code hoặc Apache Netbeans, XAMPP hoặc SQL Server, Draw.io,…
+3. Nhiệm vụ: 
+Khảo sát và phân tích yêu cầu: Tìm hiểu hoạt động thực tế của công tác đào tạo ngắn hạn tại trường; xác định nghiệp vụ cốt lõi cần tin học hóa, phân tích các luồng dữ liệu và đối tượng sử dụng hệ thống.
+Phân tích và thiết kế hệ thống: Xây dựng biểu đồ Use Case mô tả các chức năng của hệ thống; xây dựng biểu đồ lớp mô hình hóa các lớp đối tượng chính trong hệ thống cùng các thuộc tính và mối quan hệ; thiết kế cấu trúc cơ sở dữ liệu. thiết kế giao diện người dùng.
+Xây dựng và phát triển ứng dụng web: Tạo cơ sở dữ liệu sử dụng hệ quản trị cơ sở dữ liệu tương ứng; phát triển ứng dụng web, tích hợp cơ sở dữ liệu, lập trình các chức năng chính theo thiết kế đã đề xuất, đảm bảo hệ thống có tính bảo mật, phân quyền, ổn định và khả năng mở rộng.
+Kiểm thử và hiệu chỉnh hệ thống: Thực hiện kiểm thử chức năng, hiệu suất và tính ổn định của ứng dụng.
+Viết tài liệu và báo cáo tổng kết: Soạn tài liệu hướng dẫn sử dụng và cài đặt hệ thống; báo cáo thực hiện Đồ án tốt nghiệp theo quy định.
+4. Kết quả/sản phẩm đạt được: 
+Ứng dụng web hoàn chỉnh đảm bảo: Giao diện web thân thiện, có phân quyền người dùng (quản trị viên, giảng viên, học viên); có các chức năng cơ bản: quản lý khóa học, lớp học, đăng ký học, điểm danh, theo dõi học tập, đánh giá, thống kê báo cáo.
+Cơ sở dữ liệu hợp lý, chuẩn hóa, hỗ trợ lưu trữ và truy vấn hiệu quả, có khả năng mở rộng.

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main-layout}">
+<head>
+    <title>Page Not Found</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="d-flex align-items-center justify-content-center vh-100">
+            <div class="text-center">
+                <h1 class="display-1 fw-bold">404</h1>
+                <p class="fs-3"> <span class="text-danger">Opps!</span> Page not found.</p>
+                <p class="lead" th:text="${errorMessage}">
+                    Trang bạn tìm kiếm không tồn tại.
+                </p>
+                <a th:href="@{/dashboard}" class="btn btn-primary">Go Home</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

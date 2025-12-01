@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/material-layout}">
+<head>
+    <title>Quản lý Đăng ký</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="row">
+        <div class="col-12">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
+                        <h6 class="text-white text-capitalize ps-3 mb-0">Danh sách Đăng ký</h6>
+                        <a th:href="@{/admin/enrollments/pending}" class="btn bg-gradient-warning btn-sm mb-0 me-3 text-dark">
+                            <i class="material-symbols-rounded text-sm">pending</i>&nbsp;&nbsp;Duyệt đăng ký mới
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body px-0 pb-2">
+                    <div class="p-3">
+                        <!-- Filter -->
+                        <form th:action="@{/admin/enrollments}" method="get" class="row g-3 align-items-center">
+                            <div class="col-md-4">
+                                <div class="input-group input-group-outline my-3 is-filled">
+                                    <label class="form-label">Lọc theo trạng thái</label>
+                                    <select name="status" class="form-control" onchange="this.form.submit()">
+                                        <option value="">-- Tất cả trạng thái --</option>
+                                        <option th:each="s : ${statuses}" 
+                                                th:value="${s}" 
+                                                th:text="${s}" 
+                                                th:selected="${selectedStatus == s.name()}"></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Table -->
+                    <div class="table-responsive p-0">
+                        <table class="table align-items-center mb-0 table-hover">
+                            <thead>
+                                <tr>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Học viên</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Lớp học</th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Ngày đăng ký</th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Trạng thái</th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Thanh toán</th>
+                                    <th class="text-secondary opacity-7"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="enrollment : ${enrollments}">
+                                    <td class="ps-4">
+                                        <div class="d-flex px-2 py-1">
+                                            <div class="d-flex flex-column justify-content-center">
+                                                <h6 class="mb-0 text-sm font-weight-bold" th:text="${enrollment.student.fullName}">Student Name</h6>
+                                                <p class="text-xs text-secondary mb-0" th:text="${enrollment.student.email}">email@example.com</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <p class="text-xs font-weight-bold mb-0 text-dark" th:text="${enrollment.classEntity.classCode}">Class Code</p>
+                                        <p class="text-xs text-secondary mb-0" th:text="${enrollment.classEntity.course.name}">Course Name</p>
+                                    </td>
+                                    <td class="align-middle text-center">
+                                        <span class="text-secondary text-xs font-weight-bold" th:text="${#temporals.format(enrollment.enrollmentDate, 'dd/MM/yyyy')}">Date</span>
+                                    </td>
+                                    <td class="align-middle text-center text-sm">
+                                        <span class="badge badge-sm"
+                                              th:classappend="${enrollment.status.name() == 'APPROVED' ? 'bg-gradient-success' : 
+                                                              (enrollment.status.name() == 'PENDING' ? 'bg-gradient-warning' : 
+                                                              (enrollment.status.name() == 'REJECTED' ? 'bg-gradient-danger' : 'bg-gradient-secondary'))}"
+                                              th:text="${enrollment.status}">STATUS</span>
+                                    </td>
+                                    <td class="align-middle text-center text-sm">
+                                        <span class="badge badge-sm"
+                                              th:classappend="${enrollment.paymentStatus.name() == 'PAID' ? 'bg-gradient-success' : 
+                                                              (enrollment.paymentStatus.name() == 'PARTIAL' ? 'bg-gradient-info' : 'bg-gradient-secondary')}"
+                                              th:text="${enrollment.paymentStatus}">UNPAID</span>
+                                        <div class="text-xs text-secondary mt-1" th:if="${enrollment.paymentAmount > 0}">
+                                            Đã đóng: <span th:text="${#numbers.formatDecimal(enrollment.paymentAmount, 0, 'COMMA', 0, 'POINT')}">0</span> đ
+                                        </div>
+                                    </td>
+                                    <td class="align-middle text-end pe-4">
+                                        <a th:href="@{/admin/enrollments/{id}(id=${enrollment.id})}" class="btn btn-link text-dark px-2 mb-0" title="Chi tiết">
+                                            <i class="material-symbols-rounded text-sm">visibility</i>
+                                        </a>
+                                        <form th:if="${enrollment.status.name() == 'PENDING' || enrollment.status.name() == 'APPROVED'}" 
+                                              th:action="@{/admin/enrollments/{id}/cancel(id=${enrollment.id})}" method="post" class="d-inline-block"
+                                              th:attr="onsubmit='return confirmAction(event, \'' + 'Bạn có chắc chắn muốn hủy đăng ký này?' + '\');'">
+                                            <button type="submit" class="btn btn-link text-danger px-2 mb-0" title="Hủy đăng ký">
+                                                <i class="material-symbols-rounded text-sm">cancel</i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(enrollments)}">
+                                    <td colspan="6" class="text-center py-5">
+                                        <div class="d-flex flex-column align-items-center justify-content-center">
+                                            <i class="material-symbols-rounded text-secondary opacity-5 text-5xl mb-3">inbox</i>
+                                            <h6 class="text-secondary font-weight-normal">Chưa có dữ liệu đăng ký nào.</h6>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

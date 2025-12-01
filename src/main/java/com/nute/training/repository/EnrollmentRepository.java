@@ -1,0 +1,101 @@
+package com.nute.training.repository;
+
+import com.nute.training.entity.ClassEntity;
+import com.nute.training.entity.Enrollment;
+import com.nute.training.entity.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.Optional;
+
+/**
+ * Repository: EnrollmentRepository
+ * Quản lý đăng ký học
+ */
+@Repository
+public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
+
+    /**
+     * Tìm đăng ký theo học viên và lớp
+     */
+    Optional<Enrollment> findByStudentAndClassEntity(User student, ClassEntity classEntity);
+
+    /**
+     * Kiểm tra học viên đã đăng ký lớp này chưa
+     */
+    boolean existsByStudentAndClassEntity(User student, ClassEntity classEntity);
+
+    /**
+     * Tìm tất cả đăng ký của học viên
+     */
+    List<Enrollment> findByStudent(User student);
+
+    /**
+     * Tìm tất cả đăng ký của lớp
+     */
+    List<Enrollment> findByClassEntity(ClassEntity classEntity);
+
+    /**
+     * Tìm đăng ký theo trạng thái
+     */
+    List<Enrollment> findByStatus(Enrollment.EnrollmentStatus status);
+
+    /**
+     * Tìm đăng ký theo học viên và trạng thái
+     */
+    List<Enrollment> findByStudentAndStatus(User student, Enrollment.EnrollmentStatus status);
+
+    /**
+     * Tìm đăng ký theo lớp và trạng thái
+     */
+    List<Enrollment> findByClassEntityAndStatus(
+            ClassEntity classEntity,
+            Enrollment.EnrollmentStatus status
+    );
+
+    /**
+     * Tìm tất cả đăng ký PENDING (chờ duyệt)
+     */
+    @Query("SELECT e FROM Enrollment e WHERE e.status = 'PENDING' ORDER BY e.createdAt ASC")
+    List<Enrollment> findPendingEnrollments();
+
+    /**
+     * Tìm tất cả đăng ký APPROVED của lớp
+     */
+    @Query("SELECT e FROM Enrollment e WHERE e.classEntity = :classEntity AND e.status = 'APPROVED'")
+    List<Enrollment> findApprovedEnrollmentsByClass(@Param("classEntity") ClassEntity classEntity);
+
+    /**
+     * Đếm số học viên đã được duyệt trong lớp
+     */
+    @Query("SELECT COUNT(e) FROM Enrollment e WHERE " +
+           "e.classEntity = :classEntity AND e.status = 'APPROVED'")
+    Long countApprovedEnrollmentsByClass(@Param("classEntity") ClassEntity classEntity);
+
+    /**
+     * Tìm đăng ký theo trạng thái thanh toán
+     */
+    List<Enrollment> findByPaymentStatus(Enrollment.PaymentStatus paymentStatus);
+
+    /**
+     * Tìm đăng ký chưa thanh toán hoặc thanh toán một phần
+     */
+    @Query("SELECT e FROM Enrollment e WHERE " +
+           "e.paymentStatus IN ('UNPAID', 'PARTIAL') AND e.status = 'APPROVED'")
+    List<Enrollment> findUnpaidOrPartialEnrollments();
+
+    /**
+     * Thống kê đăng ký theo trạng thái
+     */
+    @Query("SELECT e.status, COUNT(e) FROM Enrollment e GROUP BY e.status")
+    List<Object[]> countEnrollmentsByStatus();
+
+    /**
+     * Thống kê theo trạng thái thanh toán
+     */
+    @Query("SELECT e.paymentStatus, COUNT(e) FROM Enrollment e GROUP BY e.paymentStatus")
+    List<Object[]> countEnrollmentsByPaymentStatus();
+}

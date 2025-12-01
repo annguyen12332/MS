@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ thống Quản lý Đào tạo</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body>
+
+<div class="wrapper">
+    <!-- Sidebar -->
+    <nav id="sidebar">
+        <div class="sidebar-header">
+            <h3><i class="fas fa-graduation-cap"></i> NUTE Training</h3>
+        </div>
+
+        <ul class="list-unstyled components">
+            <!-- Admin Menu -->
+            <div sec:authorize="hasAuthority('ADMIN')">
+                <p class="text-uppercase text-muted small fw-bold mb-0 px-3 mt-3">Quản trị</p>
+                <li>
+                    <a th:href="@{/admin/dashboard}" th:classappend="${#httpServletRequest.getRequestURI() == '/admin/dashboard' ? 'active' : ''}">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/admin/users}" th:classappend="${#httpServletRequest.getRequestURI().startsWith('/admin/users') ? 'active' : ''}">
+                        <i class="fas fa-users"></i> Người dùng
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/admin/courses}" th:classappend="${#httpServletRequest.getRequestURI().startsWith('/admin/courses') ? 'active' : ''}">
+                        <i class="fas fa-book"></i> Khóa học
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/admin/classes}" th:classappend="${#httpServletRequest.getRequestURI().startsWith('/admin/classes') ? 'active' : ''}">
+                        <i class="fas fa-chalkboard-teacher"></i> Lớp học
+                    </a>
+                </li>
+            </div>
+
+            <!-- Teacher Menu -->
+            <div sec:authorize="hasAuthority('TEACHER')">
+                <p class="text-uppercase text-muted small fw-bold mb-0 px-3 mt-3">Giảng viên</p>
+                <li>
+                    <a th:href="@{/teacher/dashboard}" th:classappend="${#httpServletRequest.getRequestURI() == '/teacher/dashboard' ? 'active' : ''}">
+                        <i class="fas fa-tachometer-alt"></i> Tổng quan
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/teacher/schedules}" th:classappend="${#httpServletRequest.getRequestURI().startsWith('/teacher/schedules') ? 'active' : ''}">
+                        <i class="fas fa-calendar-alt"></i> Lịch dạy
+                    </a>
+                </li>
+            </div>
+
+            <!-- Student Menu -->
+            <div sec:authorize="hasAuthority('STUDENT')">
+                <p class="text-uppercase text-muted small fw-bold mb-0 px-3 mt-3">Học viên</p>
+                <li>
+                    <a th:href="@{/student/dashboard}" th:classappend="${#httpServletRequest.getRequestURI() == '/student/dashboard' ? 'active' : ''}">
+                        <i class="fas fa-tachometer-alt"></i> Tổng quan
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/student/courses}" th:classappend="${#httpServletRequest.getRequestURI().startsWith('/student/courses') ? 'active' : ''}">
+                        <i class="fas fa-book-reader"></i> Đăng ký học
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/student/grades}" th:classappend="${#httpServletRequest.getRequestURI().startsWith('/student/grades') ? 'active' : ''}">
+                        <i class="fas fa-star"></i> Điểm số
+                    </a>
+                </li>
+            </div>
+            
+            <!-- Common Menu -->
+            <hr class="mx-3 my-2" style="border-color: rgba(255,255,255,0.2);">
+            <li>
+                <a th:href="@{/profile}" th:classappend="${#httpServletRequest.getRequestURI().startsWith('/profile') ? 'active' : ''}">
+                    <i class="fas fa-user-circle"></i> Hồ sơ cá nhân
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Page Content -->
+    <div id="content">
+        <!-- Top Navigation -->
+        <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top">
+            <div class="container-fluid">
+                <button type="button" id="sidebarCollapse" class="btn btn-light border">
+                    <i class="fas fa-bars"></i>
+                </button>
+
+                <div class="d-flex align-items-center ms-auto">
+                    <div class="dropdown">
+                        <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <div class="user-avatar me-2">
+                                <span sec:authentication="name[0]">U</span>
+                            </div>
+                            <span class="d-none d-sm-inline fw-bold text-dark" sec:authentication="name">User</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown">
+                            <li><a class="dropdown-item" th:href="@{/profile}"><i class="fas fa-user me-2 text-muted"></i>Hồ sơ</a></li>
+                            <li><a class="dropdown-item" th:href="@{/change-password}"><i class="fas fa-key me-2 text-muted"></i>Đổi mật khẩu</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form th:action="@{/logout}" method="post">
+                                    <button type="submit" class="dropdown-item text-danger"><i class="fas fa-sign-out-alt me-2"></i>Đăng xuất</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content Injection -->
+        <div class="main-container">
+            <div layout:fragment="content">
+                <!-- Content will be replaced here -->
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <footer class="text-center py-3 text-muted small">
+            &copy; 2024 NUTE Short-term Training Management System. All rights reserved.
+        </footer>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    $(document).ready(function () {
+        $('#sidebarCollapse').on('click', function () {
+            $('#sidebar').toggleClass('active');
+            $('#content').toggleClass('active');
+        });
+    });
+</script>
+<th:block layout:fragment="scripts"></th:block>
+
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/material-layout}">
+<head>
+    <title>Duyệt Đăng ký</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="row">
+        <div class="col-12">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3 d-flex align-items-center">
+                        <a th:href="@{/admin/dashboard}" class="btn btn-link text-white mb-0 p-0 px-3">
+                            <i class="material-symbols-rounded text-lg">arrow_back</i>
+                        </a>
+                        <h6 class="text-white text-capitalize ps-3 mb-0">Duyệt yêu cầu đăng ký</h6>
+                    </div>
+                </div>
+                <div class="card-body px-0 pb-2">
+                    <!-- Table -->
+                    <div class="table-responsive p-0">
+                        <table class="table align-items-center mb-0 table-hover">
+                            <thead>
+                                <tr>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Học viên</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Khóa học đăng ký</th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Ngày đăng ký</th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Học phí</th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Trạng thái thanh toán</th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="enrollment : ${enrollments}">
+                                    <td class="ps-4">
+                                        <div class="d-flex py-1">
+                                            <div class="d-flex flex-column justify-content-center">
+                                                <h6 class="mb-0 text-sm font-weight-bold" th:text="${enrollment.student.fullName}">Full Name</h6>
+                                                <p class="text-xs text-secondary mb-0" th:text="${enrollment.student.email}">email</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <p class="text-xs font-weight-bold mb-0 text-dark" th:text="${enrollment.classEntity.classCode}">CODE</p>
+                                        <p class="text-xs text-secondary mb-0" th:text="${enrollment.classEntity.course.name}">Course</p>
+                                    </td>
+                                    <td class="align-middle text-center">
+                                        <span class="text-secondary text-xs font-weight-bold" th:text="${#temporals.format(enrollment.enrollmentDate, 'dd/MM/yyyy HH:mm')}">Date</span>
+                                    </td>
+                                    <td class="align-middle text-center">
+                                        <span class="text-success text-xs font-weight-bold" th:text="${#numbers.formatDecimal(enrollment.classEntity.course.tuitionFee, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</span>
+                                    </td>
+                                    <td class="align-middle text-center text-sm">
+                                        <span class="badge badge-sm bg-gradient-secondary" th:text="${enrollment.paymentStatus}">UNPAID</span>
+                                    </td>
+                                    <td class="align-middle text-center">
+                                        <div class="d-flex justify-content-center gap-2">
+                                            <!-- Approve -->
+                                            <form th:action="@{/admin/enrollments/{id}/approve(id=${enrollment.id})}" method="post">
+                                                <button type="submit" class="btn bg-gradient-success btn-sm mb-0 shadow-sm" title="Duyệt vào lớp">
+                                                    <i class="material-symbols-rounded text-sm me-1">check</i> Duyệt
+                                                </button>
+                                            </form>
+                                            <!-- Reject -->
+                                            <form th:action="@{/admin/enrollments/{id}/reject(id=${enrollment.id})}" method="post"
+                                                  th:attr="onsubmit='return confirmAction(event, \'' + 'Bạn chắc chắn muốn từ chối yêu cầu đăng ký của ' + ${enrollment.student.fullName} + '?' + '\');'">
+                                                <button type="submit" class="btn btn-outline-danger btn-sm mb-0 ms-2" title="Từ chối">
+                                                    <i class="material-symbols-rounded text-sm me-1">close</i> Từ chối
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(enrollments)}">
+                                    <td colspan="6" class="text-center py-5">
+                                        <div class="d-flex flex-column align-items-center justify-content-center">
+                                            <i class="material-symbols-rounded text-success opacity-5 text-5xl mb-3">check_circle</i>
+                                            <h6 class="text-secondary font-weight-normal">Tuyệt vời! Không có yêu cầu nào đang chờ xử lý.</h6>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

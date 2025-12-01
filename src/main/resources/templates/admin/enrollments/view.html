@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/material-layout}">
+<head>
+    <title>Chi tiết Đăng ký</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="row">
+        <div class="col-12">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3 d-flex align-items-center">
+                        <a th:href="@{/admin/enrollments}" class="btn btn-link text-white mb-0 p-0 px-3">
+                            <i class="material-symbols-rounded text-lg">arrow_back</i>
+                        </a>
+                        <h6 class="text-white text-capitalize ps-3 mb-0">Chi tiết Đăng ký</h6>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row">
+                        <!-- Student Info -->
+                        <div class="col-md-6 mb-4">
+                            <h6 class="text-uppercase text-body text-xs font-weight-bolder opacity-7 mb-3">Thông tin Học viên</h6>
+                            <ul class="list-group">
+                                <li class="list-group-item border-0 d-flex p-4 mb-2 bg-gray-100 border-radius-lg">
+                                    <div class="d-flex flex-column">
+                                        <h6 class="mb-3 text-sm" th:text="${enrollment.student.fullName}">Full Name</h6>
+                                        <span class="mb-2 text-xs">Email: <span class="text-dark font-weight-bold ms-sm-2" th:text="${enrollment.student.email}">email</span></span>
+                                        <span class="mb-2 text-xs">SĐT: <span class="text-dark font-weight-bold ms-sm-2" th:text="${enrollment.student.phone}">phone</span></span>
+                                        <span class="text-xs">Username: <span class="text-dark font-weight-bold ms-sm-2" th:text="${enrollment.student.username}">user</span></span>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Class Info -->
+                        <div class="col-md-6 mb-4">
+                            <h6 class="text-uppercase text-body text-xs font-weight-bolder opacity-7 mb-3">Thông tin Lớp học</h6>
+                            <ul class="list-group">
+                                <li class="list-group-item border-0 d-flex p-4 mb-2 bg-gray-100 border-radius-lg">
+                                    <div class="d-flex flex-column">
+                                        <h6 class="mb-3 text-sm" th:text="${enrollment.classEntity.classCode}">Class Code</h6>
+                                        <span class="mb-2 text-xs">Tên lớp: <span class="text-dark font-weight-bold ms-sm-2" th:text="${enrollment.classEntity.className}">Name</span></span>
+                                        <span class="mb-2 text-xs">Khóa học: <span class="text-dark font-weight-bold ms-sm-2" th:text="${enrollment.classEntity.course.name}">Course</span></span>
+                                        <span class="mb-2 text-xs">Học phí: <span class="text-success font-weight-bold ms-sm-2" th:text="${#numbers.formatDecimal(enrollment.classEntity.course.tuitionFee, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</span></span>
+                                        <span class="text-xs">Giảng viên: <span class="text-dark font-weight-bold ms-sm-2" th:text="${enrollment.classEntity.teacher != null ? enrollment.classEntity.teacher.fullName : 'Chưa phân công'}">Teacher</span></span>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Enrollment Info -->
+                        <div class="col-12 mb-4">
+                            <h6 class="text-uppercase text-body text-xs font-weight-bolder opacity-7 mb-3">Thông tin Đăng ký & Thanh toán</h6>
+                            <div class="card card-plain h-100">
+                                <div class="card-body p-3">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p class="text-sm mb-1">Ngày đăng ký: <b th:text="${#temporals.format(enrollment.enrollmentDate, 'dd/MM/yyyy')}">Date</b></p>
+                                            <p class="text-sm mb-1">Trạng thái: 
+                                                <span class="badge badge-sm"
+                                                  th:classappend="${enrollment.status.name() == 'APPROVED' ? 'bg-gradient-success' : 
+                                                                  (enrollment.status.name() == 'PENDING' ? 'bg-gradient-warning' : 
+                                                                  (enrollment.status.name() == 'REJECTED' ? 'bg-gradient-danger' : 'bg-gradient-secondary'))}"
+                                                  th:text="${enrollment.status}">STATUS</span>
+                                            </p>
+                                            <div th:if="${enrollment.approvedBy != null}" class="mt-2">
+                                                <p class="text-xs text-secondary mb-0">Duyệt bởi: <span th:text="${enrollment.approvedBy.fullName}">Admin</span></p>
+                                                <p class="text-xs text-secondary mb-0">Thời gian: <span th:text="${#temporals.format(enrollment.approvedAt, 'dd/MM/yyyy HH:mm')}">Time</span></p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p class="text-sm mb-1">Trạng thái thanh toán: <b th:text="${enrollment.paymentStatus}">UNPAID</b></p>
+                                            <p class="text-sm mb-1">Đã thanh toán: <b class="text-success" th:text="${#numbers.formatDecimal(enrollment.paymentAmount, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</b></p>
+                                            
+                                            <!-- Payment Update Form -->
+                                            <form th:action="@{/admin/enrollments/{id}/update-payment(id=${enrollment.id})}" method="post" class="mt-3">
+                                                <div class="input-group input-group-outline my-3">
+                                                    <label class="form-label">Cập nhật số tiền đã đóng</label>
+                                                    <input type="number" name="amount" class="form-control" th:value="${enrollment.paymentAmount}" min="0" step="1000">
+                                                </div>
+                                                <button type="submit" class="btn btn-primary btn-sm">Cập nhật thanh toán</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

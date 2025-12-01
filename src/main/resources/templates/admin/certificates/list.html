@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/material-layout}">
+<head>
+    <title>Danh sách chứng chỉ</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="row">
+        <div class="col-12">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3 d-flex align-items-center justify-content-between px-3">
+                        <h6 class="text-white text-capitalize mb-0">Danh sách chứng chỉ đã cấp</h6>
+                        <!-- Search box could go here -->
+                    </div>
+                </div>
+                <div class="card-body px-0 pb-2">
+                    <div class="table-responsive p-0">
+                        <table class="table align-items-center mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Mã chứng chỉ</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Học viên</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Khóa học</th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Ngày cấp</th>
+                                    <th class="text-secondary opacity-7"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="cert : ${certificates}">
+                                    <td>
+                                        <div class="d-flex px-2 py-1">
+                                            <div class="d-flex flex-column justify-content-center">
+                                                <h6 class="mb-0 text-sm" th:text="${cert.certificateCode}">CODE</h6>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <p class="text-xs font-weight-bold mb-0" th:text="${cert.student.fullName}">Student Name</p>
+                                        <p class="text-xs text-secondary mb-0" th:text="${cert.student.email}">email</p>
+                                    </td>
+                                    <td>
+                                        <p class="text-xs font-weight-bold mb-0" th:text="${cert.course.name}">Course</p>
+                                    </td>
+                                    <td class="align-middle text-center">
+                                        <span class="text-secondary text-xs font-weight-bold" th:text="${#temporals.format(cert.issueDate, 'dd/MM/yyyy')}">Date</span>
+                                    </td>
+                                    <td class="align-middle">
+                                        <a th:href="@{/admin/certificates/{id}(id=${cert.id})}" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip" data-original-title="View details">
+                                            Xem chi tiết
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(certificates)}">
+                                    <td colspan="5" class="text-center py-4 text-secondary text-sm">Chưa có chứng chỉ nào được cấp.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

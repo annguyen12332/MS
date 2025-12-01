@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/material-layout}">
+<head>
+    <title>Quản lý Lớp học</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="row">
+        <div class="col-12">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
+                        <h6 class="text-white text-capitalize ps-3 mb-0">Quản lý Lớp học</h6>
+                        <a th:href="@{/admin/classes/create}" class="btn bg-gradient-dark btn-sm mb-0 me-3">
+                            <i class="material-symbols-rounded text-sm">add</i>&nbsp;&nbsp;Mở lớp mới
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body px-0 pb-2">
+                    <div class="p-3">
+                        <!-- Search -->
+                        <form th:action="@{/admin/classes}" method="get" class="row g-3 align-items-center">
+                            <div class="col-md-5">
+                                <div class="input-group input-group-outline my-3" th:classappend="${keyword != null && keyword != '' ? 'is-filled' : ''}">
+                                    <label class="form-label">Tìm theo mã lớp, tên lớp...</label>
+                                    <input type="text" name="keyword" class="form-control" th:value="${keyword}">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="input-group input-group-outline my-3 is-filled">
+                                    <select name="status" class="form-control">
+                                        <option value="">-- Trạng thái --</option>
+                                        <option value="PENDING" th:selected="${status == 'PENDING'}">Sắp mở (Pending)</option>
+                                        <option value="ONGOING" th:selected="${status == 'ONGOING'}">Đang diễn ra</option>
+                                        <option value="COMPLETED" th:selected="${status == 'COMPLETED'}">Đã kết thúc</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-primary w-100 my-3 mb-0">
+                                    <i class="material-symbols-rounded text-sm me-1">filter_alt</i> Lọc
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Table -->
+                    <div class="table-responsive p-0">
+                        <table class="table align-items-center mb-0 table-hover">
+                            <thead>
+                                <tr>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Mã lớp</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Khóa học</th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Giảng viên</th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Thời gian</th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Sĩ số</th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Trạng thái</th>
+                                    <th class="text-secondary opacity-7"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="clazz : ${classes}">
+                                    <td class="ps-4">
+                                        <div class="d-flex py-1">
+                                            <div class="d-flex flex-column justify-content-center">
+                                                <h6 class="mb-0 text-sm font-weight-bold" th:text="${clazz.classCode}">CODE</h6>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <p class="text-xs font-weight-bold mb-0 text-dark" th:text="${clazz.course.name}">Course</p>
+                                        <p class="text-xs text-secondary mb-0" th:text="${clazz.className}">Class Name</p>
+                                    </td>
+                                    <td class="align-middle text-center">
+                                        <div class="d-flex flex-column justify-content-center align-items-center">
+                                            <p class="text-xs font-weight-bold mb-0" th:text="${clazz.teacher != null ? clazz.teacher.fullName : '---'}">Teacher</p>
+                                        </div>
+                                    </td>
+                                    <td class="align-middle text-center">
+                                        <span class="text-secondary text-xs font-weight-bold" th:text="${#temporals.format(clazz.startDate, 'dd/MM/yyyy')}">Start</span>
+                                        <p class="text-xs text-secondary mb-0" th:text="'đến ' + ${#temporals.format(clazz.endDate, 'dd/MM/yyyy')}">End</p>
+                                    </td>
+                                    <td class="align-middle text-center text-sm">
+                                        <span class="badge badge-sm bg-gradient-light text-dark border">
+                                            <span th:text="${clazz.currentStudents}">0</span> / <span th:text="${clazz.maxStudents}">30</span>
+                                        </span>
+                                    </td>
+                                    <td class="align-middle text-center text-sm">
+                                        <span class="badge badge-sm" 
+                                              th:classappend="${clazz.status.name() == 'ONGOING' ? 'bg-gradient-success' : (clazz.status.name() == 'PENDING' ? 'bg-gradient-warning' : 'bg-gradient-secondary')}"
+                                              th:text="${clazz.status}">STATUS</span>
+                                    </td>
+                                    <td class="align-middle text-end pe-4">
+                                        <a th:href="@{/admin/classes/{id}(id=${clazz.id})}" class="btn btn-link text-dark px-2 mb-0" data-bs-toggle="tooltip" data-bs-placement="top" title="Xem chi tiết">
+                                            <i class="material-symbols-rounded text-sm">visibility</i>
+                                        </a>
+                                        <a th:href="@{/admin/classes/{id}/edit(id=${clazz.id})}" class="btn btn-link text-dark px-2 mb-0" data-bs-toggle="tooltip" data-bs-placement="top" title="Chỉnh sửa">
+                                            <i class="material-symbols-rounded text-sm">edit</i>
+                                        </a>
+                                        <!-- Add delete button if needed, though not always present for classes with students -->
+                                        <form th:action="@{/admin/classes/{id}/delete(id=${clazz.id})}" method="post" class="d-inline-block"
+                                              th:attr="onsubmit='return confirmAction(event, \'' + 'Bạn có chắc chắn muốn xóa lớp ' + ${clazz.classCode} + '?' + '\');'">
+                                            <button type="submit" class="btn btn-link text-danger px-2 mb-0" data-bs-toggle="tooltip" data-bs-placement="top" title="Xóa">
+                                                <i class="material-symbols-rounded text-sm">delete</i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(classes)}">
+                                    <td colspan="7" class="text-center py-5">
+                                        <div class="d-flex flex-column align-items-center justify-content-center">
+                                            <i class="material-symbols-rounded text-secondary opacity-5 text-5xl mb-3">school</i>
+                                            <h6 class="text-secondary font-weight-normal">Không tìm thấy lớp học nào.</h6>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

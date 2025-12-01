@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/material-layout}">
+<head>
+    <title th:text="${classEntity.id == null ? 'Mở lớp học mới' : 'Cập nhật lớp học'}">Form Lớp học</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="row">
+        <div class="col-12">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3 d-flex align-items-center">
+                        <a th:href="@{/admin/classes}" class="btn btn-link text-white mb-0 p-0 px-3">
+                            <i class="material-symbols-rounded text-lg">arrow_back</i>
+                        </a>
+                        <h6 class="text-white text-capitalize ps-3 mb-0" th:text="${classEntity.id == null ? 'Mở lớp học mới' : 'Cập nhật: ' + classEntity.classCode}"></h6>
+                    </div>
+                </div>
+                <div class="card-body px-0 pb-2">
+                    <div class="p-4">
+                        <form th:action="@{/admin/classes/save}" th:object="${classEntity}" method="post">
+                            <input type="hidden" th:field="*{id}" />
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="input-group input-group-outline my-3 is-filled">
+                                        <label class="form-label">Thuộc Khóa học</label>
+                                        <select class="form-control" th:field="*{course}" required>
+                                            <option value="">-- Chọn khóa học --</option>
+                                            <option th:each="c : ${courses}" th:value="${c.id}" th:text="${c.name} + ' (' + ${c.code} + ')'">Course</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="input-group input-group-outline my-3" th:classappend="${classEntity.classCode != null ? 'is-filled' : ''}">
+                                        <label class="form-label">Mã lớp (Tự động nếu để trống)</label>
+                                        <input type="text" class="form-control" th:field="*{classCode}">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="input-group input-group-outline my-3" th:classappend="${classEntity.className != null ? 'is-filled' : ''}">
+                                        <label class="form-label">Tên lớp (Tùy chọn)</label>
+                                        <input type="text" class="form-control" th:field="*{className}">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="input-group input-group-outline my-3 is-filled">
+                                        <label class="form-label">Giảng viên phụ trách</label>
+                                        <select class="form-control" th:field="*{teacher}">
+                                            <option value="">-- Chọn giảng viên --</option>
+                                            <option th:each="t : ${teachers}" th:value="${t.id}" th:text="${t.fullName}">Teacher Name</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="input-group input-group-outline my-3" th:classappend="${classEntity.room != null ? 'is-filled' : ''}">
+                                        <label class="form-label">Phòng học</label>
+                                        <input type="text" class="form-control" th:field="*{room}">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="input-group input-group-outline my-3" th:classappend="${classEntity.maxStudents != null ? 'is-filled' : ''}">
+                                        <label class="form-label">Sĩ số tối đa</label>
+                                        <input type="number" class="form-control" th:field="*{maxStudents}" required min="1">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="input-group input-group-outline my-3 is-filled">
+                                        <label class="form-label">Ngày bắt đầu</label>
+                                        <input type="date" class="form-control" th:field="*{startDate}" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="input-group input-group-outline my-3 is-filled">
+                                        <label class="form-label">Ngày kết thúc</label>
+                                        <input type="date" class="form-control" th:field="*{endDate}" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="input-group input-group-outline my-3 is-filled">
+                                        <label class="form-label">Trạng thái</label>
+                                        <select class="form-control" th:field="*{status}">
+                                            <option value="PENDING">Sắp mở (Pending)</option>
+                                            <option value="ONGOING">Đang diễn ra</option>
+                                            <option value="COMPLETED">Đã kết thúc</option>
+                                            <option value="CANCELLED">Đã hủy</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-end mt-4">
+                                <a th:href="@{/admin/classes}" class="btn btn-light mb-0 me-2">Hủy bỏ</a>
+                                <button type="submit" class="btn bg-gradient-primary mb-0">Lưu thông tin</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

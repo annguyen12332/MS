@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/material-layout}">
+<head>
+    <title>Thời khóa biểu chi tiết</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="row">
+        <div class="col-12">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3 d-flex align-items-center">
+                        <a th:href="@{/admin/classes/{id}(id=${classEntity.id})}" class="btn btn-link text-white mb-0 p-0 px-3">
+                            <i class="material-symbols-rounded text-lg">arrow_back</i>
+                        </a>
+                        <div>
+                            <h6 class="text-white text-capitalize ps-3 mb-0">Thời khóa biểu</h6>
+                            <p class="text-white text-sm ps-3 mb-0" th:text="${classEntity.className} + ' (' + ${classEntity.classCode} + ')'">Class Info</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body px-0 pb-2">
+                    <div class="d-flex justify-content-end px-4 pb-2">
+                        <a th:href="@{/admin/schedules/class/{id}/create(id=${classEntity.id})}" class="btn bg-gradient-success btn-sm mb-0">
+                            <i class="material-symbols-rounded text-sm me-1">add</i> Thêm buổi học
+                        </a>
+                    </div>
+                    <div class="table-responsive p-0">
+                        <table class="table align-items-center mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Buổi số</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Thời gian</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Địa điểm</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Nội dung</th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Trạng thái</th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="sch : ${schedules}">
+                                    <td>
+                                        <p class="text-xs font-weight-bold mb-0 ps-3" th:text="${sch.sessionNumber}">1</p>
+                                    </td>
+                                    <td>
+                                        <p class="text-xs font-weight-bold mb-0" th:text="${#temporals.format(sch.sessionDate, 'dd/MM/yyyy')}">Date</p>
+                                        <p class="text-xs text-secondary mb-0"><span th:text="${sch.startTime}">Start</span> - <span th:text="${sch.endTime}">End</span></p>
+                                    </td>
+                                    <td>
+                                        <p class="text-xs font-weight-bold mb-0" th:text="${sch.room}">Room</p>
+                                    </td>
+                                    <td>
+                                        <p class="text-xs mb-0" th:text="${sch.topic}">Topic</p>
+                                    </td>
+                                    <td class="align-middle text-center text-sm">
+                                        <span class="badge badge-sm" 
+                                              th:classappend="${sch.status.name() == 'COMPLETED' ? 'bg-gradient-success' : (sch.status.name() == 'SCHEDULED' ? 'bg-gradient-info' : 'bg-gradient-danger')}"
+                                              th:text="${sch.status}">Status</span>
+                                    </td>
+                                    <td class="align-middle text-center">
+                                        <div class="d-flex justify-content-center gap-2">
+                                            <a th:href="@{/admin/schedules/{id}/edit(id=${sch.id})}" class="btn btn-link text-dark px-3 mb-0" title="Edit">
+                                                <i class="material-symbols-rounded text-sm me-2">edit</i>Edit
+                                            </a>
+                                            <form th:action="@{/admin/schedules/{id}/delete(id=${sch.id})}" method="post" onsubmit="return confirm('Bạn có chắc muốn xóa buổi học này?');">
+                                                <input type="hidden" name="classId" th:value="${classEntity.id}" />
+                                                <button type="submit" class="btn btn-link text-danger px-3 mb-0">
+                                                    <i class="material-symbols-rounded text-sm me-2">delete</i>Delete
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(schedules)}">
+                                    <td colspan="6" class="text-center py-4 text-secondary text-sm">Chưa có lịch học.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
