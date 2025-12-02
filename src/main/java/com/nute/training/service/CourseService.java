@@ -28,7 +28,7 @@ public class CourseService {
      */
     @Transactional(readOnly = true)
     public List<Course> findAll() {
-        return courseRepository.findAll();
+        return courseRepository.findAllWithCourseType();
     }
 
     /**

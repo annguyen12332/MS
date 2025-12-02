@@ -67,6 +67,7 @@ public class AdminDashboardController {
         model.addAttribute("recentCourses", recentCourses);
         model.addAttribute("recentClasses", recentClasses);
         model.addAttribute("recentEnrollments", recentEnrollments);
+        model.addAttribute("pageTitle", "Dashboard");
 
         return "admin/dashboard";
     }

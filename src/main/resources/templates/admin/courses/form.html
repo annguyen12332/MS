@@ -1,112 +1,77 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layout/material-layout}">
+<html xmlns:th="http://www.thymeleaf.org" 
+      th:replace="~{admin/layout :: layout(~{::title}, ~{::content}, ~{}, ~{})}">
 <head>
-    <title th:text="${course.id == null ? 'Tạo khóa học mới' : 'Cập nhật khóa học'}">Form Khóa học</title>
+    <title th:text="${course.id != null ? 'Cập nhật khóa học' : 'Thêm khóa học mới'}">Quản lý khóa học</title>
 </head>
 <body>
-<div layout:fragment="content">
-    <div class="row">
-        <div class="col-12">
-            <div class="card my-4">
-                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-                    <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3 d-flex align-items-center">
-                        <a th:href="@{/admin/courses}" class="btn btn-link text-white mb-0 p-0 px-3">
-                            <i class="material-symbols-rounded text-lg">arrow_back</i>
-                        </a>
-                        <h6 class="text-white text-capitalize ps-3 mb-0" th:text="${course.id == null ? 'Tạo khóa học mới' : 'Cập nhật: ' + course.code}"></h6>
+    <div th:fragment="content">
+        <div class="row justify-content-center">
+            <div class="col-12 col-lg-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0 fw-bold" th:text="${course.id != null ? 'Cập nhật thông tin' : 'Thêm khóa học mới'}">Title</h5>
                     </div>
-                </div>
-                <div class="card-body px-0 pb-2">
-                    <div class="p-4">
-                        <form th:action="@{/admin/courses/save}" th:object="${course}" method="post">
-                            <input type="hidden" th:field="*{id}" />
+                    <div class="card-body p-4">
+                        <form th:action="${course.id != null ? '/admin/courses/' + course.id + '/update' : '/admin/courses/create'}" 
+                              method="post" th:object="${course}">
                             
-                            <div class="row">
-                                <div class="col-md-8">
-                                    <div class="input-group input-group-outline my-3" th:classappend="${course.name != null ? 'is-filled' : ''}">
-                                        <label class="form-label">Tên khóa học</label>
-                                        <input type="text" class="form-control" th:field="*{name}" required>
-                                    </div>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="code" class="form-label">Mã khóa học <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="code" th:field="*{code}" 
+                                           th:classappend="${#fields.hasErrors('code')} ? 'is-invalid'"
+                                           th:readonly="${course.id != null}">
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('code')}" th:errors="*{code}">Error</div>
                                 </div>
-                                <div class="col-md-4">
-                                    <div class="input-group input-group-outline my-3" th:classappend="${course.code != null ? 'is-filled' : ''}">
-                                        <label class="form-label">Mã khóa học</label>
-                                        <input type="text" class="form-control" th:field="*{code}" required>
-                                    </div>
+                                <div class="col-md-6">
+                                    <label for="name" class="form-label">Tên khóa học <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="name" th:field="*{name}" 
+                                           th:classappend="${#fields.hasErrors('name')} ? 'is-invalid'">
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('name')}" th:errors="*{name}">Error</div>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <label for="description" class="form-label">Mô tả</label>
+                                    <textarea class="form-control" id="description" th:field="*{description}" rows="3"></textarea>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="courseType" class="form-label">Loại hình đào tạo <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="courseType" th:field="*{courseType}">
+                                        <option th:each="type : ${courseTypes}" 
+                                                th:value="${type.id}" 
+                                                th:text="${type.name}"></option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="status" class="form-label">Trạng thái</label>
+                                    <select class="form-select" id="status" th:field="*{status}">
+                                        <option th:each="s : ${statuses}" th:value="${s}" th:text="${s}"></option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="durationHours" class="form-label">Thời lượng (giờ) <span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" id="durationHours" th:field="*{durationHours}" min="1"
+                                           th:classappend="${#fields.hasErrors('durationHours')} ? 'is-invalid'">
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('durationHours')}" th:errors="*{durationHours}">Error</div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="fee" class="form-label">Học phí (VNĐ) <span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" id="fee" th:field="*{tuitionFee}" min="0"
+                                           th:classappend="${#fields.hasErrors('tuitionFee')} ? 'is-invalid'">
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('tuitionFee')}" th:errors="*{tuitionFee}">Error</div>
                                 </div>
                             </div>
 
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="input-group input-group-outline my-3 is-filled">
-                                        <label class="form-label">Loại khóa học</label>
-                                        <select class="form-control" th:field="*{courseType}">
-                                            <option th:each="type : ${courseTypes}" th:value="${type.id}" th:text="${type.name}">CNTT</option>
-                                            <option th:if="${#lists.isEmpty(courseTypes)}" value="">Chưa có loại nào</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="input-group input-group-outline my-3 is-filled">
-                                        <label class="form-label">Trạng thái</label>
-                                        <select class="form-control" th:field="*{status}">
-                                            <option value="DRAFT">Nháp (Draft)</option>
-                                            <option value="ACTIVE">Hoạt động (Active)</option>
-                                            <option value="INACTIVE">Ngưng hoạt động</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="input-group input-group-outline my-3" th:classappend="${course.tuitionFee != null ? 'is-filled' : ''}">
-                                        <label class="form-label">Học phí (VNĐ)</label>
-                                        <input type="number" class="form-control" th:field="*{tuitionFee}" required min="0">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="input-group input-group-outline my-3" th:classappend="${course.durationSessions != null ? 'is-filled' : ''}">
-                                        <label class="form-label">Số buổi học</label>
-                                        <input type="number" class="form-control" th:field="*{durationSessions}" required min="1">
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="input-group input-group-outline my-3" th:classappend="${course.durationHours != null ? 'is-filled' : ''}">
-                                        <label class="form-label">Tổng giờ học</label>
-                                        <input type="number" class="form-control" th:field="*{durationHours}" min="1">
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="input-group input-group-outline my-3" th:classappend="${course.maxStudents != null ? 'is-filled' : ''}">
-                                        <label class="form-label">Sĩ số tối đa</label>
-                                        <input type="number" class="form-control" th:field="*{maxStudents}" min="1">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-12">
-                                    <div class="input-group input-group-outline my-3" th:classappend="${course.description != null ? 'is-filled' : ''}">
-                                        <label class="form-label">Mô tả nội dung</label>
-                                        <textarea class="form-control" th:field="*{description}" rows="4"></textarea>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-12">
-                                    <div class="input-group input-group-outline my-3" th:classappend="${course.requirements != null ? 'is-filled' : ''}">
-                                        <label class="form-label">Yêu cầu đầu vào</label>
-                                        <textarea class="form-control" th:field="*{requirements}" rows="3"></textarea>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="d-flex justify-content-end mt-4">
-                                <a th:href="@{/admin/courses}" class="btn btn-light mb-0 me-2">Hủy bỏ</a>
-                                <button type="submit" class="btn bg-gradient-primary mb-0">Lưu khóa học</button>
+                            <div class="mt-4 d-flex justify-content-end gap-2">
+                                <a href="/admin/courses" class="btn btn-light">Hủy bỏ</a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>Lưu thay đổi
+                                </button>
                             </div>
                         </form>
                     </div>
@@ -114,6 +79,5 @@
             </div>
         </div>
     </div>
-</div>
 </body>
 </html>

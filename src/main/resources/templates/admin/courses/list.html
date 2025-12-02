@@ -1,116 +1,130 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layout/material-layout}">
+<html xmlns:th="http://www.thymeleaf.org" 
+      th:replace="~{admin/layout :: layout(~{::title}, ~{::content}, ~{}, ~{})}">
 <head>
-    <title>Quản lý Khóa học</title>
+    <title>Quản lý khóa học</title>
 </head>
 <body>
-<div layout:fragment="content">
-    <div class="row">
-        <div class="col-12">
-            <div class="card my-4">
-                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-                    <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
-                        <h6 class="text-white text-capitalize ps-3 mb-0">Quản lý Khóa học</h6>
-                        <a th:href="@{/admin/courses/create}" class="btn bg-gradient-dark btn-sm mb-0 me-3">
-                            <i class="material-symbols-rounded text-sm">add</i>&nbsp;&nbsp;Tạo khóa học
+    <div th:fragment="content">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white py-3">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h5 class="mb-0 fw-bold">Danh sách khóa học</h5>
+                    </div>
+                    <div class="col-auto">
+                        <a href="/admin/courses/create" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Thêm mới
                         </a>
                     </div>
                 </div>
-                <div class="card-body px-0 pb-2">
-                    <div class="p-3">
-                        <!-- Search & Filter -->
-                        <form th:action="@{/admin/courses}" method="get" class="row g-3 align-items-center">
-                            <div class="col-md-6">
-                                <div class="input-group input-group-outline my-3" th:classappend="${keyword != null && keyword != '' ? 'is-filled' : ''}">
-                                    <label class="form-label">Tìm theo tên khóa học hoặc mã...</label>
-                                    <input type="text" name="keyword" class="form-control" th:value="${keyword}">
-                                </div>
-                            </div>
-                            <div class="col-md-2">
-                                <button type="submit" class="btn btn-primary w-100 my-3 mb-0">
-                                    <i class="material-symbols-rounded text-sm me-1">search</i> Tìm kiếm
-                                </button>
-                            </div>
-                        </form>
+            </div>
+            <div class="card-body border-bottom bg-light">
+                <form action="/admin/courses" method="get" class="row g-3">
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+                            <input type="text" class="form-control border-start-0 ps-0" name="keyword" 
+                                   th:value="${keyword}" placeholder="Tìm kiếm theo tên khóa học, mô tả...">
+                        </div>
                     </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-secondary w-100">Tìm kiếm</button>
+                    </div>
+                </form>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col" class="ps-4">Tên khóa học</th>
+                            <th scope="col">Loại hình</th>
+                            <th scope="col">Thời lượng</th>
+                            <th scope="col">Học phí</th>
+                            <th scope="col">Trạng thái</th>
+                            <th scope="col" class="text-end pe-4">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="course : ${courses}">
+                            <td class="ps-4">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-sm bg-light rounded p-2 d-flex align-items-center justify-content-center me-3" 
+                                         style="width: 40px; height: 40px">
+                                        <i class="fas fa-book text-primary"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-medium" th:text="${course.name}">Course Name</div>
+                                        <div class="small text-muted text-truncate" style="max-width: 200px;" 
+                                             th:text="${course.description}">Description</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-info bg-opacity-10 text-info" 
+                                      th:text="${course.courseType.name}">Type</span>
+                            </td>
+                            <td>
+                                <i class="far fa-clock me-1 text-muted"></i>
+                                <span th:text="${course.durationHours + ' giờ'}">0 giờ</span>
+                            </td>
+                            <td class="fw-bold text-success" th:text="${#numbers.formatDecimal(course.tuitionFee, 0, 'COMMA', 0, 'POINT') + ' VNĐ'}">
+                                0 VNĐ
+                            </td>
+                            <td>
+                                <span class="badge"
+                                      th:classappend="${course.status.name() == 'ACTIVE' ? 'bg-success bg-opacity-10 text-success' : 'bg-secondary bg-opacity-10 text-secondary'}"
+                                      th:text="${course.status}">STATUS</span>
+                            </td>
+                            <td class="text-end pe-4">
+                                <div class="btn-group">
+                                    <a th:href="@{/admin/courses/{id}(id=${course.id})}" class="btn btn-sm btn-light" title="Xem chi tiết">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a th:href="@{/admin/courses/{id}/edit(id=${course.id})}" class="btn btn-sm btn-light" title="Chỉnh sửa">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-light text-danger" 
+                                            data-bs-toggle="modal" 
+                                            th:data-bs-target="'#deleteModal' + ${course.id}"
+                                            title="Xóa">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
 
-                    <!-- Table -->
-                    <div class="table-responsive p-0">
-                        <table class="table align-items-center mb-0 table-hover">
-                            <thead>
-                                <tr>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Mã khóa học</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Tên khóa học</th>
-                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Loại</th>
-                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Thời lượng</th>
-                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Học phí</th>
-                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Trạng thái</th>
-                                    <th class="text-secondary opacity-7"></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr th:each="course : ${courses}">
-                                    <td class="ps-4">
-                                        <div class="d-flex py-1">
-                                            <div class="d-flex flex-column justify-content-center">
-                                                <h6 class="mb-0 text-sm font-weight-bold" th:text="${course.code}">CODE</h6>
+                                <!-- Delete Modal -->
+                                <div class="modal fade" th:id="'deleteModal' + ${course.id}" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Xác nhận xóa</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body text-start">
+                                                Bạn có chắc chắn muốn xóa khóa học <strong th:text="${course.name}"></strong>?
+                                                <br>Hành động này không thể hoàn tác.
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                                                <form th:action="@{/admin/courses/{id}/delete(id=${course.id})}" method="post">
+                                                    <button type="submit" class="btn btn-danger">Xóa</button>
+                                                </form>
                                             </div>
                                         </div>
-                                    </td>
-                                    <td>
-                                        <p class="text-sm font-weight-bold mb-0 text-dark" th:text="${course.name}">Course Name</p>
-                                    </td>
-                                    <td class="align-middle text-center text-sm">
-                                        <span class="badge badge-sm bg-gradient-light text-dark border" th:text="${course.courseType != null ? course.courseType.name : '---'}">Type</span>
-                                    </td>
-                                    <td class="align-middle text-center">
-                                        <span class="text-secondary text-xs font-weight-bold" th:text="${course.durationSessions} + ' buổi'">0 buổi</span>
-                                        <p class="text-xs text-secondary mb-0" th:text="'(' + ${course.durationHours} + 'h)'"></p>
-                                    </td>
-                                    <td class="align-middle text-center">
-                                        <span class="text-success text-xs font-weight-bold" th:text="${#numbers.formatDecimal(course.tuitionFee, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</span>
-                                    </td>
-                                    <td class="align-middle text-center text-sm">
-                                        <span class="badge badge-sm" 
-                                              th:classappend="${course.status.name() == 'ACTIVE' ? 'bg-gradient-success' : (course.status.name() == 'DRAFT' ? 'bg-gradient-secondary' : 'bg-gradient-danger')}"
-                                              th:text="${course.status}">STATUS</span>
-                                    </td>
-                                    <td class="align-middle text-end pe-4">
-                                        <a th:href="@{/admin/courses/{id}(id=${course.id})}" class="btn btn-link text-dark px-2 mb-0" data-bs-toggle="tooltip" data-bs-placement="top" title="Xem chi tiết">
-                                            <i class="material-symbols-rounded text-sm">visibility</i>
-                                        </a>
-                                        <a th:href="@{/admin/courses/{id}/edit(id=${course.id})}" class="btn btn-link text-dark px-2 mb-0" data-bs-toggle="tooltip" data-bs-placement="top" title="Chỉnh sửa">
-                                            <i class="material-symbols-rounded text-sm">edit</i>
-                                        </a>
-                                        <!-- Safe delete with SweetAlert -->
-                                        <!-- NOTE: Since we don't have a DELETE method in the controller (usually GET for admin list implies link), 
-                                             but typically delete should be POST/DELETE. Looking at previous code, it was a link with confirm. 
-                                             However, best practice is a FORM. I will check controller to see if it's GET or POST. 
-                                             Assuming standard practice or previous controller scan showed POST for delete. -->
-                                         <form th:action="@{/admin/courses/{id}/delete(id=${course.id})}" method="post" class="d-inline-block"
-                                               th:attr="onsubmit='return confirmAction(event, \'' + 'Bạn có chắc chắn muốn xóa khóa học ' + ${course.code} + '?' + '\');'">
-                                            <button type="submit" class="btn btn-link text-danger px-2 mb-0" data-bs-toggle="tooltip" data-bs-placement="top" title="Xóa">
-                                                <i class="material-symbols-rounded text-sm">delete</i>
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                                <tr th:if="${#lists.isEmpty(courses)}">
-                                    <td colspan="7" class="text-center py-5">
-                                        <div class="d-flex flex-column align-items-center justify-content-center">
-                                            <i class="material-symbols-rounded text-secondary opacity-5 text-5xl mb-3">library_books</i>
-                                            <h6 class="text-secondary font-weight-normal">Chưa có khóa học nào được tạo.</h6>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(courses)}">
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                <i class="fas fa-book-open fa-2x mb-3"></i>
+                                <p class="mb-0">Không tìm thấy khóa học nào</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
-</div>
 </body>
 </html>

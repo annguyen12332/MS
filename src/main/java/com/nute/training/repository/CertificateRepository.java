@@ -63,7 +63,12 @@ public interface CertificateRepository extends JpaRepository<Certificate, Long> 
     /**
      * Tìm chứng chỉ đã cấp
      */
-    @Query("SELECT c FROM Certificate c WHERE c.status = 'ISSUED' ORDER BY c.issueDate DESC")
+    @Query("SELECT c FROM Certificate c " +
+           "JOIN FETCH c.enrollment e " +
+           "JOIN FETCH e.student " +
+           "JOIN FETCH e.classEntity ce " +
+           "JOIN FETCH ce.course " +
+           "WHERE c.status = 'ISSUED' ORDER BY c.issueDate DESC")
     List<Certificate> findIssuedCertificates();
 
     /**

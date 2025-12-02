@@ -1,100 +1,76 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layout/material-layout}">
+<html xmlns:th="http://www.thymeleaf.org" 
+      th:replace="~{admin/layout :: layout(~{::title}, ~{::content}, ~{}, ~{})}">
 <head>
-    <title th:text="${user.id == null ? 'Thêm người dùng mới' : 'Chỉnh sửa người dùng'}">Form Người dùng</title>
+    <title th:text="${user.id != null ? 'Cập nhật người dùng' : 'Thêm người dùng mới'}">Quản lý người dùng</title>
 </head>
 <body>
-<div layout:fragment="content">
-    <div class="row">
-        <div class="col-12">
-            <div class="card my-4">
-                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-                    <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3 d-flex align-items-center">
-                        <a th:href="@{/admin/users}" class="btn btn-link text-white mb-0 p-0 px-3">
-                            <i class="material-symbols-rounded text-lg">arrow_back</i>
-                        </a>
-                        <h6 class="text-white text-capitalize ps-3 mb-0" th:text="${user.id == null ? 'Thêm người dùng mới' : 'Chỉnh sửa: ' + user.username}"></h6>
+    <div th:fragment="content">
+        <div class="row justify-content-center">
+            <div class="col-12 col-lg-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0 fw-bold" th:text="${user.id != null ? 'Cập nhật thông tin' : 'Thêm người dùng mới'}">Title</h5>
                     </div>
-                </div>
-                <div class="card-body px-0 pb-2">
-                    <div class="p-4">
-                        <form th:action="@{/admin/users/save}" th:object="${user}" method="post">
-                            <input type="hidden" th:field="*{id}" />
+                    <div class="card-body p-4">
+                        <form th:action="${user.id != null ? '/admin/users/' + user.id + '/update' : '/admin/users/create'}" 
+                              method="post" th:object="${user}">
                             
-                            <div th:if="${error}" class="alert alert-danger text-white mb-4" role="alert">
-                                <span class="alert-icon align-middle">
-                                  <i class="material-symbols-rounded text-md">error</i>
-                                </span>
-                                <span class="alert-text" th:text="${error}"></span>
-                            </div>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="username" class="form-label">Tên đăng nhập <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="username" th:field="*{username}" 
+                                           th:classappend="${#fields.hasErrors('username')} ? 'is-invalid'"
+                                           th:disabled="${user.id != null}">
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('username')}" th:errors="*{username}">Error</div>
+                                </div>
+                                
+                                <div class="col-md-6" th:if="${user.id == null}">
+                                    <label for="password" class="form-label">Mật khẩu <span class="text-danger">*</span></label>
+                                    <input type="password" class="form-control" id="password" th:field="*{password}"
+                                           th:classappend="${#fields.hasErrors('password')} ? 'is-invalid'">
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('password')}" th:errors="*{password}">Error</div>
+                                </div>
 
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="input-group input-group-outline my-3" th:classappend="${user.username != null ? 'is-filled' : ''}">
-                                        <label class="form-label">Tên đăng nhập</label>
-                                        <input type="text" class="form-control" th:field="*{username}" th:readonly="${user.id != null}" required>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="input-group input-group-outline my-3" th:classappend="${user.email != null ? 'is-filled' : ''}">
-                                        <label class="form-label">Email</label>
-                                        <input type="email" class="form-control" th:field="*{email}" required>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="input-group input-group-outline my-3" th:classappend="${user.fullName != null ? 'is-filled' : ''}">
-                                        <label class="form-label">Họ và tên</label>
-                                        <input type="text" class="form-control" th:field="*{fullName}" required>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="input-group input-group-outline my-3" th:classappend="${user.phone != null ? 'is-filled' : ''}">
-                                        <label class="form-label">Số điện thoại</label>
-                                        <input type="text" class="form-control" th:field="*{phone}">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="input-group input-group-outline my-3 is-filled">
-                                        <label class="form-label">Vai trò</label>
-                                        <select class="form-control" th:field="*{role}">
-                                            <option value="STUDENT">Học viên</option>
-                                            <option value="TEACHER">Giảng viên</option>
-                                            <option value="ADMIN">Quản trị viên</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="input-group input-group-outline my-3 is-filled">
-                                        <label class="form-label">Trạng thái</label>
-                                        <select class="form-control" th:field="*{status}">
-                                            <option value="ACTIVE">Hoạt động</option>
-                                            <option value="INACTIVE">Không hoạt động</option>
-                                            <option value="SUSPENDED">Đã khóa</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row" th:if="${user.id == null}">
                                 <div class="col-md-12">
-                                    <div class="input-group input-group-outline my-3">
-                                        <label class="form-label">Mật khẩu</label>
-                                        <input type="password" class="form-control" th:field="*{password}" required minlength="6">
-                                    </div>
-                                    <small class="text-muted ms-2">Mật khẩu tối thiểu 6 ký tự</small>
+                                    <label for="fullName" class="form-label">Họ và tên <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="fullName" th:field="*{fullName}"
+                                           th:classappend="${#fields.hasErrors('fullName')} ? 'is-invalid'">
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}">Error</div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                                    <input type="email" class="form-control" id="email" th:field="*{email}"
+                                           th:classappend="${#fields.hasErrors('email')} ? 'is-invalid'">
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('email')}" th:errors="*{email}">Error</div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="phone" class="form-label">Số điện thoại</label>
+                                    <input type="text" class="form-control" id="phone" th:field="*{phone}">
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="role" class="form-label">Vai trò <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="role" th:field="*{role}">
+                                        <option th:each="r : ${roles}" th:value="${r}" th:text="${r}"></option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="status" class="form-label">Trạng thái</label>
+                                    <select class="form-select" id="status" th:field="*{status}">
+                                        <option th:each="s : ${statuses}" th:value="${s}" th:text="${s}"></option>
+                                    </select>
                                 </div>
                             </div>
 
-                            <div class="d-flex justify-content-end mt-4">
-                                <a th:href="@{/admin/users}" class="btn btn-light mb-0 me-2">Hủy bỏ</a>
-                                <button type="submit" class="btn bg-gradient-primary mb-0">Lưu thông tin</button>
+                            <div class="mt-4 d-flex justify-content-end gap-2">
+                                <a href="/admin/users" class="btn btn-light">Hủy bỏ</a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>Lưu thay đổi
+                                </button>
                             </div>
                         </form>
                     </div>
@@ -102,6 +78,5 @@
             </div>
         </div>
     </div>
-</div>
 </body>
 </html>

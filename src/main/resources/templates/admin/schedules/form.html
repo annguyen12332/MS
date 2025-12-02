@@ -1,99 +1,69 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layout/material-layout}">
+<html xmlns:th="http://www.thymeleaf.org" 
+      th:replace="~{admin/layout :: layout(~{::title}, ~{::content}, ~{}, ~{})}">
 <head>
-    <title th:text="${schedule.id == null ? 'Thêm buổi học' : 'Cập nhật buổi học'}">Form Lịch học</title>
+    <title th:text="${schedule.id != null ? 'Cập nhật lịch học' : 'Thêm lịch học mới'}">Quản lý lịch học</title>
 </head>
 <body>
-<div layout:fragment="content">
-    <div class="row">
-        <div class="col-12">
-            <div class="card my-4">
-                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-                    <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3 d-flex align-items-center">
-                        <a th:href="@{/admin/classes/{id}(id=${classEntity.id})}" class="btn btn-link text-white mb-0 p-0 px-3">
-                            <i class="material-symbols-rounded text-lg">arrow_back</i>
-                        </a>
-                        <h6 class="text-white text-capitalize ps-3 mb-0" th:text="${schedule.id == null ? 'Thêm buổi học mới' : 'Cập nhật buổi học'}"></h6>
+    <div th:fragment="content">
+        <div class="row justify-content-center">
+            <div class="col-12 col-lg-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0 fw-bold" th:text="${schedule.id != null ? 'Cập nhật lịch học' : 'Thêm lịch học mới'}">Title</h5>
+                        <div class="small text-muted mt-1">Lớp: <span th:text="${classEntity.className}">Class</span></div>
                     </div>
-                </div>
-                <div class="card-body px-0 pb-2">
-                    <div class="p-4">
-                        <div class="alert alert-info text-white mb-4" role="alert">
-                            <strong>Lớp học:</strong> <span th:text="${classEntity.className}">Class Name</span> 
-                            (<span th:text="${classEntity.classCode}">Code</span>)
-                        </div>
-
-                        <form th:action="@{${schedule.id == null ? '/admin/schedules/create' : '/admin/schedules/' + schedule.id + '/update'}}" 
-                              th:object="${schedule}" method="post">
-                            <input type="hidden" th:field="*{id}" />
-                            <input type="hidden" name="classEntity" th:value="${classEntity.id}" />
-                            <!-- If classEntity is bound via th:field, we might need a converter or just pass ID. 
-                                 Controller create expects @ModelAttribute Schedule schedule. 
-                                 Usually we bind the ID or the object. Let's assume we can bind the ID if we used a converter, 
-                                 but here safely we might need to ensure classEntity is set.
-                                 The controller 'create' method takes 'Schedule schedule'. 
-                                 I'll use a hidden input for classEntity.id if the entity relationship allows simple ID binding, 
-                                 otherwise I might need 'classEntity.id' as the name. 
-                                 Let's try 'classEntity' with value ID. -->
-                            <input type="hidden" th:field="*{classEntity}" />
-
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="input-group input-group-outline my-3" th:classappend="${schedule.sessionNumber != null ? 'is-filled' : ''}">
-                                        <label class="form-label">Buổi số</label>
-                                        <input type="number" class="form-control" th:field="*{sessionNumber}" required min="1">
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="input-group input-group-outline my-3 is-filled">
-                                        <label class="form-label">Ngày học</label>
-                                        <input type="date" class="form-control" th:field="*{sessionDate}" required>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="input-group input-group-outline my-3 is-filled">
-                                        <label class="form-label">Trạng thái</label>
-                                        <select class="form-control" th:field="*{status}">
-                                            <option th:each="s : ${statuses}" th:value="${s}" th:text="${s}">SCHEDULED</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row">
+                    <div class="card-body p-4">
+                        <form th:action="${schedule.id != null ? '/admin/schedules/' + schedule.id + '/update' : '/admin/schedules/create'}" 
+                              method="post" th:object="${schedule}">
+                            
+                            <!-- Hidden fields -->
+                            <input type="hidden" name="classEntity" th:value="${classEntity.id}" th:if="${schedule.id == null}">
+                            
+                            <div class="row g-3">
                                 <div class="col-md-6">
-                                    <div class="input-group input-group-outline my-3 is-filled">
-                                        <label class="form-label">Giờ bắt đầu</label>
-                                        <input type="time" class="form-control" th:field="*{startTime}" required>
-                                    </div>
+                                    <label for="sessionNumber" class="form-label">Buổi số <span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" id="sessionNumber" th:field="*{sessionNumber}" min="1" required>
                                 </div>
+
                                 <div class="col-md-6">
-                                    <div class="input-group input-group-outline my-3 is-filled">
-                                        <label class="form-label">Giờ kết thúc</label>
-                                        <input type="time" class="form-control" th:field="*{endTime}" required>
-                                    </div>
+                                    <label for="sessionDate" class="form-label">Ngày học <span class="text-danger">*</span></label>
+                                    <input type="date" class="form-control" id="sessionDate" th:field="*{sessionDate}" required>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="startTime" class="form-label">Giờ bắt đầu <span class="text-danger">*</span></label>
+                                    <input type="time" class="form-control" id="startTime" th:field="*{startTime}" required>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="endTime" class="form-label">Giờ kết thúc <span class="text-danger">*</span></label>
+                                    <input type="time" class="form-control" id="endTime" th:field="*{endTime}" required>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="room" class="form-label">Phòng học</label>
+                                    <input type="text" class="form-control" id="room" th:field="*{room}" th:value="${classEntity.room}">
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="status" class="form-label">Trạng thái</label>
+                                    <select class="form-select" id="status" th:field="*{status}">
+                                        <option th:each="s : ${statuses}" th:value="${s}" th:text="${s}"></option>
+                                    </select>
+                                </div>
+                                
+                                <div class="col-12">
+                                    <label for="description" class="form-label">Ghi chú bài học</label>
+                                    <textarea class="form-control" id="description" th:field="*{description}" rows="3" placeholder="Nội dung bài học..."></textarea>
                                 </div>
                             </div>
 
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="input-group input-group-outline my-3" th:classappend="${schedule.room != null ? 'is-filled' : ''}">
-                                        <label class="form-label">Phòng học</label>
-                                        <input type="text" class="form-control" th:field="*{room}" required>
-                                    </div>
-                                </div>
-                                <div class="col-md-8">
-                                    <div class="input-group input-group-outline my-3" th:classappend="${schedule.topic != null ? 'is-filled' : ''}">
-                                        <label class="form-label">Nội dung / Chủ đề</label>
-                                        <input type="text" class="form-control" th:field="*{topic}">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="d-flex justify-content-end mt-4">
-                                <a th:href="@{/admin/classes/{id}(id=${classEntity.id})}" class="btn btn-light mb-0 me-2">Hủy bỏ</a>
-                                <button type="submit" class="btn bg-gradient-primary mb-0">Lưu lịch học</button>
+                            <div class="mt-4 d-flex justify-content-end gap-2">
+                                <a th:href="@{/admin/schedules/class/{id}(id=${classEntity.id})}" class="btn btn-light">Hủy bỏ</a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>Lưu thay đổi
+                                </button>
                             </div>
                         </form>
                     </div>
@@ -101,6 +71,5 @@
             </div>
         </div>
     </div>
-</div>
 </body>
 </html>

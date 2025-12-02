@@ -26,6 +26,14 @@ public class AdminScheduleController {
     private final ClassService classService;
 
     /**
+     * Redirect to classes page if accessing root path
+     */
+    @GetMapping("")
+    public String index() {
+        return "redirect:/admin/classes";
+    }
+
+    /**
      * Xem thời khóa biểu của lớp
      */
     @GetMapping("/class/{classId}")

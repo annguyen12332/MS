@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 /**
  * Global Exception Handler
@@ -45,10 +46,15 @@ public class GlobalExceptionHandler {
 
     /**
      * Xử lý lỗi chung (RuntimeException và các lỗi khác)
+     * Không xử lý NoResourceFoundException để cho phép Spring Boot serve static resources bình thường
      */
     @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ModelAndView handleGeneralException(Exception ex) {
+        // Bỏ qua NoResourceFoundException để Spring Boot xử lý static resources
+        if (ex instanceof NoResourceFoundException) {
+            return null; // Return null để Spring Boot tiếp tục xử lý
+        }
+
         log.error("Internal Server Error: {}", ex.getMessage(), ex);
         ModelAndView modelAndView = new ModelAndView("error/500");
         modelAndView.addObject("errorMessage", "Đã có lỗi xảy ra trong quá trình xử lý yêu cầu. Vui lòng thử lại sau.");

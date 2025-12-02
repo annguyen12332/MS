@@ -1,207 +1,170 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layout/material-layout}">
+<html xmlns:th="http://www.thymeleaf.org" 
+      th:replace="~{admin/layout :: layout(~{::title}, ~{::content}, ~{}, ~{})}">
 <head>
-    <title>Chi tiết Lớp học</title>
+    <title>Chi tiết lớp học</title>
 </head>
 <body>
-<div layout:fragment="content">
-    <div class="row">
-        <div class="col-12">
-            <div class="card my-4">
-                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-                    <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3 d-flex align-items-center">
-                        <a th:href="@{/admin/classes}" class="btn btn-link text-white mb-0 p-0 px-3">
-                            <i class="material-symbols-rounded text-lg">arrow_back</i>
-                        </a>
-                        <h6 class="text-white text-capitalize ps-3 mb-0">Chi tiết Lớp học</h6>
+    <div th:fragment="content">
+        <div class="row">
+            <!-- Class Info -->
+            <div class="col-12 col-xl-4 mb-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0 fw-bold">Thông tin lớp học</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="avatar-lg bg-primary bg-opacity-10 rounded p-3 text-primary me-3">
+                                <i class="fas fa-chalkboard fa-2x"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-1" th:text="${classEntity.className}">Class Name</h5>
+                                <div class="text-muted small" th:text="${classEntity.course.name}">Course Name</div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="small fw-bold text-muted">Sĩ số</span>
+                                <span class="small fw-bold" th:text="${classEntity.currentStudents + '/' + classEntity.maxStudents}">0/0</span>
+                            </div>
+                            <div class="progress" style="height: 6px">
+                                <div class="progress-bar bg-primary" role="progressbar" 
+                                     th:style="'width: ' + ${(classEntity.currentStudents * 100.0 / classEntity.maxStudents)} + '%'"></div>
+                            </div>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <div class="p-3 bg-light rounded">
+                                    <small class="text-muted d-block mb-1">Bắt đầu</small>
+                                    <span class="fw-bold" th:text="${#temporals.format(classEntity.startDate, 'dd/MM/yyyy')}">Date</span>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="p-3 bg-light rounded">
+                                    <small class="text-muted d-block mb-1">Kết thúc</small>
+                                    <span class="fw-bold" th:text="${#temporals.format(classEntity.endDate, 'dd/MM/yyyy')}">Date</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 pt-3 border-top">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-muted">Giảng viên</span>
+                                <span class="fw-medium" th:if="${classEntity.teacher}" th:text="${classEntity.teacher.fullName}">Teacher</span>
+                                <span class="text-danger fst-italic" th:unless="${classEntity.teacher}">Chưa phân công</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-muted">Phòng học</span>
+                                <span class="fw-medium" th:text="${classEntity.room}">Room</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-muted">Trạng thái</span>
+                                <span class="badge"
+                                      th:classappend="${classEntity.status.name() == 'ONGOING' ? 'bg-success' : 'bg-secondary'}"
+                                      th:text="${classEntity.status}">Status</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white p-3">
+                        <div class="d-grid gap-2">
+                            <a th:href="@{/admin/classes/{id}/edit(id=${classEntity.id})}" class="btn btn-outline-primary">
+                                <i class="fas fa-edit me-2"></i>Chỉnh sửa
+                            </a>
+                            <a th:href="@{/admin/schedules/class/{id}(id=${classEntity.id})}" class="btn btn-primary">
+                                <i class="fas fa-calendar-alt me-2"></i>Quản lý lịch học
+                            </a>
+                        </div>
                     </div>
                 </div>
-                <div class="card-body px-4 pb-4">
-                    <div class="row mt-2">
-                        <!-- Class Info Column -->
-                        <div class="col-lg-4 mb-4">
-                            <div class="card h-100 border">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between mb-3">
-                                        <span class="badge badge-sm" 
-                                              th:classappend="${classEntity.status.name() == 'ONGOING' ? 'bg-gradient-success' : 'bg-gradient-secondary'}"
-                                              th:text="${classEntity.status}">STATUS</span>
-                                        
-                                        <div class="dropdown">
-                                            <button class="btn btn-link text-secondary mb-0" type="button" id="classActionMenu" data-bs-toggle="dropdown" aria-expanded="false">
-                                                <i class="material-symbols-rounded">more_vert</i>
-                                            </button>
-                                            <ul class="dropdown-menu" aria-labelledby="classActionMenu">
-                                                <li><a class="dropdown-item" th:href="@{/admin/classes/{id}/edit(id=${classEntity.id})}">Chỉnh sửa thông tin</a></li>
-                                                <li><a class="dropdown-item" th:href="@{/admin/classes/{id}/schedule/generate(id=${classEntity.id})}">Tạo lịch tự động</a></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                    
-                                    <h5 class="font-weight-bolder mb-1" th:text="${classEntity.classCode}">CODE</h5>
-                                    <p class="text-secondary mb-3" th:text="${classEntity.className}">Class Name</p>
-                                    
-                                    <hr class="horizontal dark my-3">
-                                    
-                                    <div class="mb-2 d-flex align-items-center">
-                                        <i class="material-symbols-rounded text-secondary me-2">school</i>
-                                        <span class="text-sm font-weight-bold text-dark" th:text="${classEntity.course.name}">Course</span>
-                                    </div>
-                                    <div class="mb-2 d-flex align-items-center">
-                                        <i class="material-symbols-rounded text-secondary me-2">person</i>
-                                        <span class="text-sm" th:text="${classEntity.teacher != null ? classEntity.teacher.fullName : 'Chưa phân công'}">Teacher</span>
-                                    </div>
-                                    <div class="mb-2 d-flex align-items-center">
-                                        <i class="material-symbols-rounded text-secondary me-2">room</i>
-                                        <span class="text-sm">Phòng: <span th:text="${classEntity.room}">Room</span></span>
-                                    </div>
-                                    <div class="mb-2 d-flex align-items-center">
-                                        <i class="material-symbols-rounded text-secondary me-2">calendar_month</i>
-                                        <span class="text-sm">
-                                            <span th:text="${#temporals.format(classEntity.startDate, 'dd/MM/yyyy')}">Start</span> - 
-                                            <span th:text="${#temporals.format(classEntity.endDate, 'dd/MM/yyyy')}">End</span>
-                                        </span>
-                                    </div>
-                                    
-                                    <div class="mt-4">
-                                        <div class="d-flex justify-content-between align-items-center mb-1">
-                                            <span class="text-xs font-weight-bold text-secondary">Sĩ số lớp</span>
-                                            <span class="text-xs font-weight-bold text-secondary">
-                                                <span th:text="${classEntity.currentStudents}">0</span>/<span th:text="${classEntity.maxStudents}">30</span>
-                                            </span>
-                                        </div>
-                                        <div class="progress">
-                                            <div class="progress-bar" role="progressbar" 
-                                                 th:classappend="${classEntity.isFull() ? 'bg-gradient-danger' : 'bg-gradient-success'}"
-                                                 th:style="'width: ' + (${classEntity.currentStudents} * 100 / ${classEntity.maxStudents}) + '%'"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+            </div>
 
-                        <!-- Tabs Column -->
-                        <div class="col-lg-8">
-                            <div class="nav-wrapper position-relative end-0 mb-3">
-                                <ul class="nav nav-pills nav-fill p-1" role="tablist">
-                                    <li class="nav-item">
-                                        <a class="nav-link mb-0 px-0 py-1 active" data-bs-toggle="tab" href="#students" role="tab" aria-selected="true">
-                                            Học viên
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link mb-0 px-0 py-1" data-bs-toggle="tab" href="#schedule" role="tab" aria-selected="false">
-                                            Thời khóa biểu
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
+            <!-- Right Column -->
+            <div class="col-12 col-xl-8">
+                <!-- Students Tab -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 fw-bold">Danh sách học viên</h5>
+                        <a th:href="@{/admin/enrollments/class/{id}(id=${classEntity.id})}" class="btn btn-sm btn-light">
+                            Xem chi tiết đăng ký
+                        </a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-4">Học viên</th>
+                                    <th>Ngày sinh</th>
+                                    <th>Liên hệ</th>
+                                    <th>Ngày vào lớp</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="enrollment : ${enrollments}">
+                                    <td class="ps-4 fw-medium" th:text="${enrollment.student.fullName}">Student Name</td>
+                                    <td th:text="${#temporals.format(enrollment.student.dob, 'dd/MM/yyyy')}">DOB</td>
+                                    <td>
+                                        <div class="small" th:text="${enrollment.student.email}">Email</div>
+                                        <div class="small text-muted" th:text="${enrollment.student.phone}">Phone</div>
+                                    </td>
+                                    <td th:text="${#temporals.format(enrollment.enrollmentDate, 'dd/MM/yyyy')}">Date</td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(enrollments)}">
+                                    <td colspan="4" class="text-center py-4 text-muted">
+                                        Chưa có học viên nào trong lớp này
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
 
-                            <div class="card h-100">
-                                <div class="card-body p-3">
-                                    <div class="tab-content">
-                                        <!-- Students Tab -->
-                                        <div class="tab-pane fade show active" id="students" role="tabpanel">
-                                            <div class="table-responsive p-0">
-                                                <table class="table align-items-center mb-0">
-                                                    <thead>
-                                                        <tr>
-                                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Học viên</th>
-                                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Ngày đăng ký</th>
-                                                            <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Trạng thái</th>
-                                                            <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Thanh toán</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <tr th:each="enrollment : ${enrollments}">
-                                                            <td>
-                                                                <div class="d-flex px-2 py-1">
-                                                                    <div class="d-flex flex-column justify-content-center">
-                                                                        <h6 class="mb-0 text-sm" th:text="${enrollment.student.fullName}">Name</h6>
-                                                                        <p class="text-xs text-secondary mb-0" th:text="${enrollment.student.email}">email</p>
-                                                                    </div>
-                                                                </div>
-                                                            </td>
-                                                            <td>
-                                                                <p class="text-xs font-weight-bold mb-0" th:text="${#temporals.format(enrollment.enrollmentDate, 'dd/MM/yyyy')}">Date</p>
-                                                            </td>
-                                                            <td class="align-middle text-center text-sm">
-                                                                <span class="badge badge-sm bg-gradient-success" th:text="${enrollment.status}">Status</span>
-                                                            </td>
-                                                            <td class="align-middle text-center text-sm">
-                                                                <span class="badge badge-sm bg-gradient-light text-dark border" th:text="${enrollment.paymentStatus}">Payment</span>
-                                                            </td>
-                                                        </tr>
-                                                        <tr th:if="${#lists.isEmpty(enrollments)}">
-                                                            <td colspan="4" class="text-center py-4 text-secondary text-sm">Chưa có học viên nào.</td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-
-                                        <!-- Schedule Tab -->
-                                        <div class="tab-pane fade" id="schedule" role="tabpanel">
-                                            <div class="d-flex justify-content-end mb-3">
-                                                <a th:href="@{/admin/schedules/class/{id}/create(id=${classEntity.id})}" class="btn btn-sm bg-gradient-primary mb-0">
-                                                    <i class="material-symbols-rounded text-sm">add</i> Thêm buổi học
-                                                </a>
-                                            </div>
-                                            <div class="table-responsive p-0">
-                                                <table class="table align-items-center mb-0">
-                                                    <thead>
-                                                        <tr>
-                                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Buổi</th>
-                                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Thời gian</th>
-                                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Phòng</th>
-                                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Nội dung</th>
-                                                            <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Trạng thái</th>
-                                                            <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Thao tác</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <tr th:each="sch : ${schedules}">
-                                                            <td>
-                                                                <p class="text-xs font-weight-bold mb-0 ps-3" th:text="${sch.sessionNumber}">1</p>
-                                                            </td>
-                                                            <td>
-                                                                <p class="text-xs font-weight-bold mb-0" th:text="${#temporals.format(sch.sessionDate, 'dd/MM/yyyy')}">Date</p>
-                                                                <p class="text-xs text-secondary mb-0"><span th:text="${sch.startTime}">Start</span> - <span th:text="${sch.endTime}">End</span></p>
-                                                            </td>
-                                                            <td>
-                                                                <p class="text-xs font-weight-bold mb-0" th:text="${sch.room}">Room</p>
-                                                            </td>
-                                                            <td>
-                                                                <p class="text-xs mb-0" th:text="${sch.topic}">Topic</p>
-                                                            </td>
-                                                            <td class="align-middle text-center text-sm">
-                                                                <span class="badge badge-sm" 
-                                                                      th:classappend="${sch.status.name() == 'COMPLETED' ? 'bg-gradient-success' : (sch.status.name() == 'SCHEDULED' ? 'bg-gradient-info' : 'bg-gradient-danger')}"
-                                                                      th:text="${sch.status}">Status</span>
-                                                            </td>
-                                                            <td class="align-middle text-center">
-                                                                <a th:href="@{/admin/schedules/{id}/edit(id=${sch.id})}" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip" data-original-title="Edit user">
-                                                                    <i class="material-symbols-rounded text-sm">edit</i>
-                                                                </a>
-                                                            </td>
-                                                        </tr>
-                                                        <tr th:if="${#lists.isEmpty(schedules)}">
-                                                            <td colspan="6" class="text-center py-4 text-secondary text-sm">Chưa có lịch học.</td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                <!-- Schedules Preview -->
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 fw-bold">Lịch học sắp tới</h5>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-4">Buổi</th>
+                                    <th>Ngày học</th>
+                                    <th>Thời gian</th>
+                                    <th>Phòng</th>
+                                    <th>Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="schedule : ${schedules}" th:if="${scheduleStat.index < 5}">
+                                    <td class="ps-4 fw-bold text-primary" th:text="'Buổi ' + ${schedule.sessionNumber}">1</td>
+                                    <td th:text="${#temporals.format(schedule.date, 'dd/MM/yyyy')}">Date</td>
+                                    <td th:text="${schedule.startTime + ' - ' + schedule.endTime}">Time</td>
+                                    <td th:text="${schedule.room}">Room</td>
+                                    <td>
+                                        <span class="badge"
+                                              th:classappend="${schedule.status.name() == 'COMPLETED' ? 'bg-success' : (schedule.status.name() == 'CANCELLED' ? 'bg-danger' : 'bg-info')}"
+                                              th:text="${schedule.status}">Status</span>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(schedules)}">
+                                    <td colspan="5" class="text-center py-4 text-muted">
+                                        Chưa có lịch học nào được tạo
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card-footer bg-white text-center" th:if="${!#lists.isEmpty(schedules)}">
+                        <a th:href="@{/admin/schedules/class/{id}(id=${classEntity.id})}" class="text-decoration-none small fw-bold">
+                            Xem toàn bộ lịch học <i class="fas fa-arrow-right ms-1"></i>
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 </body>
 </html>

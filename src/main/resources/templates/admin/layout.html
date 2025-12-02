@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:fragment="layout(title, content, head, scripts)">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:replace="${title} ? ${title} : 'Hệ thống Quản lý Đào tạo NUTE'">Admin Dashboard</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" th:href="@{/favicon.ico}">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Custom Admin CSS -->
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+    
+    <!-- Custom Head Content -->
+    <th:block th:replace="${head}"></th:block>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div th:replace="~{admin/fragments/sidebar :: sidebar}"></div>
+    
+    <!-- Overlay for mobile -->
+    <div class="overlay" id="sidebarOverlay"></div>
+
+    <div class="main-content">
+        <!-- Header -->
+        <header class="top-header">
+            <button class="btn btn-link d-lg-none text-dark p-0" id="sidebarToggle">
+                <i class="fas fa-bars fa-lg"></i>
+            </button>
+            
+            <div class="d-flex align-items-center">
+                <h5 class="mb-0 fw-bold text-secondary" th:text="${pageTitle}">Dashboard</h5>
+            </div>
+
+            <div class="user-menu dropdown">
+                <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle text-dark" 
+                   id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <div class="text-end me-2 d-none d-sm-block">
+                        <div class="fw-bold" th:text="${#authentication.name}">Admin</div>
+                        <div class="small text-muted">Administrator</div>
+                    </div>
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg" aria-labelledby="userDropdown">
+                    <li><a class="dropdown-item" href="/profile"><i class="fas fa-user-circle me-2"></i>Hồ sơ cá nhân</a></li>
+                    <li><a class="dropdown-item" href="/settings"><i class="fas fa-cog me-2"></i>Cài đặt</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <form th:action="@{/logout}" method="post" class="d-inline">
+                            <button type="submit" class="dropdown-item text-danger">
+                                <i class="fas fa-sign-out-alt me-2"></i>Đăng xuất
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </header>
+
+        <!-- Main Page Content -->
+        <main class="page-content">
+            <!-- Alerts -->
+            <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i><span th:text="${success}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i><span th:text="${error}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+            <!-- Content Injection -->
+            <div th:replace="${content}"></div>
+        </main>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Common Scripts -->
+    <script>
+        // Mobile Sidebar Toggle
+        const sidebar = document.querySelector('.sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        const toggleBtn = document.getElementById('sidebarToggle');
+
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', () => {
+                sidebar.classList.add('show');
+                overlay.classList.add('show');
+            });
+        }
+
+        if (overlay) {
+            overlay.addEventListener('click', () => {
+                sidebar.classList.remove('show');
+                overlay.classList.remove('show');
+            });
+        }
+    </script>
+    
+    <!-- Custom Scripts -->
+    <th:block th:replace="${scripts}"></th:block>
+</body>
+</html>

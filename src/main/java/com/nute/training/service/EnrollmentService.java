@@ -33,7 +33,7 @@ public class EnrollmentService {
      */
     @Transactional(readOnly = true)
     public List<Enrollment> findAll() {
-        return enrollmentRepository.findAll();
+        return enrollmentRepository.findAllWithDetails();
     }
 
     /**
@@ -65,7 +65,7 @@ public class EnrollmentService {
      */
     @Transactional(readOnly = true)
     public List<Enrollment> findByStatus(Enrollment.EnrollmentStatus status) {
-        return enrollmentRepository.findByStatus(status);
+        return enrollmentRepository.findByStatusWithDetails(status);
     }
 
     /**

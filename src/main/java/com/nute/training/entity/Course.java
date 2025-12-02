@@ -51,7 +51,7 @@ public class Course {
     @Min(value = 1, message = "Số buổi học phải lớn hơn 0")
     private Integer durationSessions;
 
-    @Column(name = "tuition_fee", precision = 10, scale = 2)
+    @Column(name = "tuition_fee", precision = 15, scale = 2)
     @DecimalMin(value = "0.00", message = "Học phí phải >= 0")
     private BigDecimal tuitionFee;
 

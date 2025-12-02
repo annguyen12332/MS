@@ -1,90 +1,86 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layout/material-layout}">
+<html xmlns:th="http://www.thymeleaf.org" 
+      th:replace="~{admin/layout :: layout(~{::title}, ~{::content}, ~{}, ~{})}">
 <head>
-    <title>Danh sách Học viên</title>
+    <title>Danh sách học viên lớp</title>
 </head>
 <body>
-<div layout:fragment="content">
-    <div class="row">
-        <div class="col-12">
-            <div class="card my-4">
-                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-                    <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
-                        <div class="d-flex align-items-center">
-                            <a th:href="@{/admin/classes/{id}(id=${classEntity.id})}" class="btn btn-link text-white mb-0 p-0 px-3">
-                                <i class="material-symbols-rounded text-lg">arrow_back</i>
-                            </a>
-                            <h6 class="text-white text-capitalize ps-3 mb-0" th:text="'Danh sách học viên - ' + ${classEntity.classCode}">Danh sách học viên</h6>
-                        </div>
-                        <div class="me-3">
-                             <span class="badge bg-light text-dark">Sĩ số: [[${approvedCount}]] / [[${classEntity.maxStudents}]]</span>
-                        </div>
+    <div th:fragment="content">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white py-3">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h5 class="mb-0 fw-bold">
+                            Danh sách học viên - <span class="text-primary" th:text="${classEntity.className}">Class Name</span>
+                        </h5>
                     </div>
-                </div>
-                <div class="card-body px-0 pb-2">
-                    <!-- Table -->
-                    <div class="table-responsive p-0">
-                        <table class="table align-items-center mb-0 table-hover">
-                            <thead>
-                                <tr>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Học viên</th>
-                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Liên hệ</th>
-                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Ngày vào lớp</th>
-                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Trạng thái</th>
-                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Thanh toán</th>
-                                    <th class="text-secondary opacity-7"></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr th:each="enrollment : ${enrollments}">
-                                    <td class="ps-4">
-                                        <div class="d-flex px-2 py-1">
-                                            <div class="d-flex flex-column justify-content-center">
-                                                <h6 class="mb-0 text-sm font-weight-bold" th:text="${enrollment.student.fullName}">Name</h6>
-                                                <p class="text-xs text-secondary mb-0" th:text="${enrollment.student.username}">username</p>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="align-middle text-center">
-                                        <p class="text-xs font-weight-bold mb-0 text-dark" th:text="${enrollment.student.email}">Email</p>
-                                        <p class="text-xs text-secondary mb-0" th:text="${enrollment.student.phone}">Phone</p>
-                                    </td>
-                                    <td class="align-middle text-center">
-                                        <span class="text-secondary text-xs font-weight-bold" th:text="${#temporals.format(enrollment.enrollmentDate, 'dd/MM/yyyy')}">Date</span>
-                                    </td>
-                                    <td class="align-middle text-center text-sm">
-                                        <span class="badge badge-sm"
-                                              th:classappend="${enrollment.status.name() == 'APPROVED' ? 'bg-gradient-success' : 'bg-gradient-secondary'}"
-                                              th:text="${enrollment.status}">STATUS</span>
-                                    </td>
-                                    <td class="align-middle text-center text-sm">
-                                        <span class="badge badge-sm"
-                                              th:classappend="${enrollment.paymentStatus.name() == 'PAID' ? 'bg-gradient-success' : 
-                                                              (enrollment.paymentStatus.name() == 'PARTIAL' ? 'bg-gradient-info' : 'bg-gradient-secondary')}"
-                                              th:text="${enrollment.paymentStatus}">UNPAID</span>
-                                    </td>
-                                    <td class="align-middle text-end pe-4">
-                                        <a th:href="@{/admin/enrollments/{id}(id=${enrollment.id})}" class="btn btn-link text-dark px-2 mb-0" title="Chi tiết">
-                                            <i class="material-symbols-rounded text-sm">visibility</i>
-                                        </a>
-                                    </td>
-                                </tr>
-                                <tr th:if="${#lists.isEmpty(enrollments)}">
-                                    <td colspan="6" class="text-center py-5">
-                                        <div class="d-flex flex-column align-items-center justify-content-center">
-                                            <i class="material-symbols-rounded text-secondary opacity-5 text-5xl mb-3">person_off</i>
-                                            <h6 class="text-secondary font-weight-normal">Chưa có học viên nào trong lớp này.</h6>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div class="col-auto">
+                        <a th:href="@{/admin/classes/{id}(id=${classEntity.id})}" class="btn btn-light btn-sm">
+                            <i class="fas fa-arrow-left me-2"></i>Về chi tiết lớp
+                        </a>
                     </div>
                 </div>
             </div>
+            <div class="card-body bg-light border-bottom">
+                 <div class="row">
+                     <div class="col-md-3">
+                         <div class="p-3 bg-white rounded shadow-sm text-center">
+                             <h6 class="text-muted mb-1">Tổng sĩ số</h6>
+                             <h3 class="mb-0 fw-bold" th:text="${enrollments.size()}">0</h3>
+                         </div>
+                     </div>
+                     <div class="col-md-3">
+                         <div class="p-3 bg-white rounded shadow-sm text-center">
+                             <h6 class="text-muted mb-1">Đã duyệt</h6>
+                             <h3 class="mb-0 fw-bold text-success" th:text="${approvedCount}">0</h3>
+                         </div>
+                     </div>
+                 </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col" class="ps-4">STT</th>
+                            <th scope="col">Học viên</th>
+                            <th scope="col">Liên hệ</th>
+                            <th scope="col">Ngày đăng ký</th>
+                            <th scope="col">Trạng thái</th>
+                            <th scope="col" class="text-end pe-4">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="enrollment, iterStat : ${enrollments}">
+                            <td class="ps-4 fw-bold text-muted" th:text="${iterStat.count}">1</td>
+                            <td>
+                                <div class="fw-bold" th:text="${enrollment.student.fullName}">Name</div>
+                                <div class="small text-muted" th:text="${#temporals.format(enrollment.student.dob, 'dd/MM/yyyy')}">DOB</div>
+                            </td>
+                            <td>
+                                <div class="small" th:text="${enrollment.student.email}">Email</div>
+                                <div class="small text-muted" th:text="${enrollment.student.phone}">Phone</div>
+                            </td>
+                            <td th:text="${#temporals.format(enrollment.enrollmentDate, 'dd/MM/yyyy')}">Date</td>
+                            <td>
+                                <span class="badge"
+                                      th:classappend="${enrollment.status.name() == 'APPROVED' ? 'bg-success' : (enrollment.status.name() == 'PENDING' ? 'bg-warning' : 'bg-danger')}"
+                                      th:text="${enrollment.status}">STATUS</span>
+                            </td>
+                            <td class="text-end pe-4">
+                                <a th:href="@{/admin/enrollments/{id}(id=${enrollment.id})}" class="btn btn-sm btn-light">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(enrollments)}">
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                Chưa có học viên nào
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-</div>
 </body>
 </html>

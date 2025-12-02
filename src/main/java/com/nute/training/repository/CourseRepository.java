@@ -35,7 +35,11 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     /**
      * Tìm tất cả khóa học ACTIVE
      */
-    List<Course> findByStatusOrderByCreatedAtDesc(Course.CourseStatus status);
+    @Query("SELECT c FROM Course c LEFT JOIN FETCH c.courseType WHERE c.status = :status ORDER BY c.createdAt DESC")
+    List<Course> findByStatusOrderByCreatedAtDesc(@Param("status") Course.CourseStatus status);
+
+    @Query("SELECT c FROM Course c LEFT JOIN FETCH c.courseType ORDER BY c.createdAt DESC")
+    List<Course> findAllWithCourseType();
 
     /**
      * Tìm khóa học theo loại khóa học
@@ -50,7 +54,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     /**
      * Tìm kiếm khóa học theo từ khóa
      */
-    @Query("SELECT c FROM Course c WHERE " +
+    @Query("SELECT c FROM Course c LEFT JOIN FETCH c.courseType WHERE " +
            "LOWER(c.code) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
            "LOWER(c.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
            "LOWER(c.description) LIKE LOWER(CONCAT('%', :keyword, '%'))")

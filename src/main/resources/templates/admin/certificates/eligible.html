@@ -1,88 +1,85 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layout/material-layout}">
+<html xmlns:th="http://www.thymeleaf.org" 
+      th:replace="~{admin/layout :: layout(~{::title}, ~{::content}, ~{}, ~{})}">
 <head>
-    <title>Cấp chứng chỉ</title>
+    <title>Xét duyệt chứng chỉ</title>
 </head>
 <body>
-<div layout:fragment="content">
-    <div class="row">
-        <div class="col-12">
-            <div class="card my-4">
-                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-                    <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3 d-flex align-items-center">
-                        <a th:href="@{/admin/classes/{id}(id=${classEntity.id})}" class="btn btn-link text-white mb-0 p-0 px-3">
-                            <i class="material-symbols-rounded text-lg">arrow_back</i>
+    <div th:fragment="content">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white py-3">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h5 class="mb-0 fw-bold">
+                            Danh sách đủ điều kiện - <span class="text-primary" th:text="${classEntity.className}">Class Name</span>
+                        </h5>
+                    </div>
+                    <div class="col-auto">
+                         <a th:href="@{/admin/classes/{id}(id=${classEntity.id})}" class="btn btn-light btn-sm me-2">
+                            <i class="fas fa-arrow-left me-2"></i>Về lớp học
                         </a>
-                        <div>
-                            <h6 class="text-white text-capitalize ps-3 mb-0">Cấp chứng chỉ khóa học</h6>
-                            <p class="text-white text-sm ps-3 mb-0" th:text="${classEntity.className}">Class Name</p>
-                        </div>
                     </div>
                 </div>
-                <div class="card-body px-0 pb-2">
-                    <div class="p-4">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h6 class="mb-0">Danh sách học viên đủ điều kiện</h6>
-                            <form th:action="@{/admin/certificates/issue-batch}" method="post" class="d-flex align-items-center">
-                                <input type="hidden" name="classId" th:value="${classEntity.id}" />
-                                <div class="input-group input-group-outline me-2" style="width: 200px;">
-                                    <label class="form-label">Tiền tố mã (VD: CERT)</label>
-                                    <input type="text" name="codePrefix" class="form-control">
-                                </div>
-                                <button type="submit" class="btn bg-gradient-success mb-0" onclick="return confirm('Xác nhận cấp chứng chỉ cho TẤT CẢ học viên trong danh sách này?');">
-                                    Cấp tất cả
-                                </button>
-                            </form>
-                        </div>
-
-                        <div class="table-responsive">
-                            <table class="table align-items-center mb-0">
-                                <thead>
-                                    <tr>
-                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Học viên</th>
-                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Điểm số / Kết quả</th>
-                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Trạng thái</th>
-                                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Thao tác</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr th:each="enrollment : ${eligibleEnrollments}">
-                                        <td>
-                                            <div class="d-flex px-2 py-1">
-                                                <div class="d-flex flex-column justify-content-center">
-                                                    <h6 class="mb-0 text-sm" th:text="${enrollment.student.fullName}">Student Name</h6>
-                                                    <p class="text-xs text-secondary mb-0" th:text="${enrollment.student.email}">email</p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="align-middle text-center">
-                                            <span class="text-secondary text-xs font-weight-bold">Đạt yêu cầu</span>
-                                        </td>
-                                        <td class="align-middle text-center">
-                                            <span class="badge badge-sm bg-gradient-info">Đủ điều kiện</span>
-                                        </td>
-                                        <td class="align-middle text-center">
-                                            <form th:action="@{/admin/certificates/{id}/issue(id=${enrollment.id})}" method="post">
-                                                <button type="submit" class="btn btn-link text-success px-3 mb-0">
-                                                    <i class="material-symbols-rounded text-sm me-2">card_membership</i>Cấp chứng chỉ
-                                                </button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                    <tr th:if="${#lists.isEmpty(eligibleEnrollments)}">
-                                        <td colspan="4" class="text-center py-4 text-secondary text-sm">
-                                            Không có học viên nào đủ điều kiện nhận chứng chỉ (hoặc đã được cấp hết).
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+            </div>
+            <div class="card-body bg-light border-bottom">
+                <div class="alert alert-info mb-0 border-0 shadow-sm">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Danh sách này bao gồm các học viên đã hoàn thành khóa học và chưa được cấp chứng chỉ.
+                </div>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col" class="ps-4">Học viên</th>
+                            <th scope="col">Ngày sinh</th>
+                            <th scope="col">Điểm tổng kết</th>
+                            <th scope="col">Xếp loại</th>
+                            <th scope="col" class="text-end pe-4">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="item : ${eligibleEnrollments}">
+                            <td class="ps-4 fw-bold" th:text="${item.student.fullName}">Student Name</td>
+                            <td th:text="${#temporals.format(item.student.dob, 'dd/MM/yyyy')}">DOB</td>
+                            <!-- Assuming we have grade info later, strictly following controller logic now which returns Enrollments -->
+                            <td>-</td>
+                            <td>-</td>
+                            <td class="text-end pe-4">
+                                <form th:action="@{/admin/certificates/{id}/issue(id=${item.id})}" method="post">
+                                    <button type="submit" class="btn btn-sm btn-success">
+                                        <i class="fas fa-award me-2"></i>Cấp chứng chỉ
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(eligibleEnrollments)}">
+                            <td colspan="5" class="text-center py-5 text-muted">
+                                Không có học viên nào đủ điều kiện cấp chứng chỉ
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="card-footer bg-white p-3" th:if="${!#lists.isEmpty(eligibleEnrollments)}">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <div class="small text-muted">Cấp hàng loạt cho tất cả học viên trong danh sách này</div>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <form th:action="@{/admin/certificates/issue-batch}" method="post" class="d-flex justify-content-end gap-2">
+                            <input type="hidden" name="classId" th:value="${classEntity.id}">
+                            <input type="text" name="codePrefix" class="form-control form-control-sm w-auto" placeholder="Tiền tố mã (VD: CERT)" required>
+                            <button type="submit" class="btn btn-primary btn-sm text-nowrap">
+                                <i class="fas fa-layer-group me-2"></i>Cấp hàng loạt
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 </body>
 </html>

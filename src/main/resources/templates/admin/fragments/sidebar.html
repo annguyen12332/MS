@@ -1,0 +1,58 @@
+<div th:fragment="sidebar" class="sidebar">
+    <div class="sidebar-header">
+        <a href="/admin/dashboard" class="logo-text">
+            <i class="fas fa-graduation-cap fa-lg"></i>
+            <span>NUTE Training</span>
+        </a>
+    </div>
+    
+    <div class="sidebar-menu">
+        <div class="menu-label">Tổng quan</div>
+        <a th:href="@{/admin/dashboard}" 
+           class="nav-link" 
+           th:classappend="${requestURI == '/admin/dashboard' ? 'active' : ''}">
+            <i class="fas fa-chart-pie"></i>
+            <span>Dashboard</span>
+        </a>
+
+        <div class="menu-label">Quản lý Đào tạo</div>
+        <a th:href="@{/admin/courses}" 
+           class="nav-link"
+           th:classappend="${requestURI.startsWith('/admin/courses') ? 'active' : ''}">
+            <i class="fas fa-book"></i>
+            <span>Khóa học</span>
+        </a>
+        <a th:href="@{/admin/classes}" 
+           class="nav-link"
+           th:classappend="${requestURI.startsWith('/admin/classes') ? 'active' : ''}">
+            <i class="fas fa-chalkboard-teacher"></i>
+            <span>Lớp học</span>
+        </a>
+        <a th:href="@{/admin/enrollments}" 
+           class="nav-link"
+           th:classappend="${requestURI.startsWith('/admin/enrollments') ? 'active' : ''}">
+            <i class="fas fa-user-graduate"></i>
+            <span>Đăng ký học</span>
+        </a>
+        <!-- <a th:href="@{/admin/schedules}" 
+           class="nav-link"
+           th:classappend="${requestURI.startsWith('/admin/schedules') ? 'active' : ''}">
+            <i class="fas fa-calendar-alt"></i>
+            <span>Thời khóa biểu</span>
+        </a> -->
+
+        <div class="menu-label">Quản lý Hệ thống</div>
+        <a th:href="@{/admin/users}" 
+           class="nav-link"
+           th:classappend="${requestURI.startsWith('/admin/users') ? 'active' : ''}">
+            <i class="fas fa-users"></i>
+            <span>Người dùng</span>
+        </a>
+        <a th:href="@{/admin/certificates}" 
+           class="nav-link"
+           th:classappend="${requestURI.startsWith('/admin/certificates') ? 'active' : ''}">
+            <i class="fas fa-certificate"></i>
+            <span>Chứng chỉ</span>
+        </a>
+    </div>
+</div>

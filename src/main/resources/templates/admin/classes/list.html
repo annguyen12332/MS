@@ -1,127 +1,142 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layout/material-layout}">
+<html xmlns:th="http://www.thymeleaf.org" 
+      th:replace="~{admin/layout :: layout(~{::title}, ~{::content}, ~{}, ~{})}">
 <head>
-    <title>Quản lý Lớp học</title>
+    <title>Quản lý lớp học</title>
 </head>
 <body>
-<div layout:fragment="content">
-    <div class="row">
-        <div class="col-12">
-            <div class="card my-4">
-                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-                    <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center">
-                        <h6 class="text-white text-capitalize ps-3 mb-0">Quản lý Lớp học</h6>
-                        <a th:href="@{/admin/classes/create}" class="btn bg-gradient-dark btn-sm mb-0 me-3">
-                            <i class="material-symbols-rounded text-sm">add</i>&nbsp;&nbsp;Mở lớp mới
+    <div th:fragment="content">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white py-3">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h5 class="mb-0 fw-bold">Danh sách lớp học</h5>
+                    </div>
+                    <div class="col-auto">
+                        <a href="/admin/classes/create" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Thêm mới
                         </a>
                     </div>
                 </div>
-                <div class="card-body px-0 pb-2">
-                    <div class="p-3">
-                        <!-- Search -->
-                        <form th:action="@{/admin/classes}" method="get" class="row g-3 align-items-center">
-                            <div class="col-md-5">
-                                <div class="input-group input-group-outline my-3" th:classappend="${keyword != null && keyword != '' ? 'is-filled' : ''}">
-                                    <label class="form-label">Tìm theo mã lớp, tên lớp...</label>
-                                    <input type="text" name="keyword" class="form-control" th:value="${keyword}">
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="input-group input-group-outline my-3 is-filled">
-                                    <select name="status" class="form-control">
-                                        <option value="">-- Trạng thái --</option>
-                                        <option value="PENDING" th:selected="${status == 'PENDING'}">Sắp mở (Pending)</option>
-                                        <option value="ONGOING" th:selected="${status == 'ONGOING'}">Đang diễn ra</option>
-                                        <option value="COMPLETED" th:selected="${status == 'COMPLETED'}">Đã kết thúc</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-2">
-                                <button type="submit" class="btn btn-primary w-100 my-3 mb-0">
-                                    <i class="material-symbols-rounded text-sm me-1">filter_alt</i> Lọc
-                                </button>
-                            </div>
-                        </form>
+            </div>
+            <div class="card-body border-bottom bg-light">
+                <form action="/admin/classes" method="get" class="row g-3">
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+                            <input type="text" class="form-control border-start-0 ps-0" name="keyword" 
+                                   th:value="${keyword}" placeholder="Tìm kiếm theo tên lớp...">
+                        </div>
                     </div>
+                    <div class="col-md-3">
+                        <select class="form-select" name="status">
+                            <option value="">-- Tất cả trạng thái --</option>
+                            <option th:each="s : ${statuses}" 
+                                    th:value="${s}" 
+                                    th:text="${s}"
+                                    th:selected="${s.name() == selectedStatus}">
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-secondary w-100">Lọc</button>
+                    </div>
+                </form>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col" class="ps-4">Tên lớp</th>
+                            <th scope="col">Khóa học</th>
+                            <th scope="col">Giảng viên</th>
+                            <th scope="col">Thời gian</th>
+                            <th scope="col">Học viên</th>
+                            <th scope="col">Trạng thái</th>
+                            <th scope="col" class="text-end pe-4">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="cls : ${classes}">
+                            <td class="ps-4 fw-bold text-primary" th:text="${cls.className}">Class Name</td>
+                            <td th:text="${cls.course.name}">Course Name</td>
+                            <td>
+                                <div th:if="${cls.teacher}">
+                                    <i class="fas fa-chalkboard-teacher text-muted me-1"></i>
+                                    <span th:text="${cls.teacher.fullName}">Teacher Name</span>
+                                </div>
+                                <span th:unless="${cls.teacher}" class="text-muted small"><em>Chưa phân công</em></span>
+                            </td>
+                            <td>
+                                <div class="small">
+                                    <div class="mb-1"><i class="far fa-calendar-alt text-muted me-1"></i> <span th:text="${#temporals.format(cls.startDate, 'dd/MM/yyyy')}">Start</span></div>
+                                    <div><i class="far fa-calendar-check text-muted me-1"></i> <span th:text="${#temporals.format(cls.endDate, 'dd/MM/yyyy')}">End</span></div>
+                                </div>
+                            </td>
+                            <td>
+                                <span th:text="${cls.currentStudents + '/' + cls.maxStudents}">0/0</span>
+                                <div class="progress" style="height: 4px; width: 60px">
+                                    <div class="progress-bar" role="progressbar" 
+                                         th:style="'width: ' + ${(cls.currentStudents * 100.0 / cls.maxStudents)} + '%'"></div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge"
+                                      th:classappend="${cls.status.name() == 'ONGOING' ? 'bg-success bg-opacity-10 text-success' : (cls.status.name() == 'UPCOMING' ? 'bg-info bg-opacity-10 text-info' : 'bg-secondary bg-opacity-10 text-secondary')}"
+                                      th:text="${cls.status}">STATUS</span>
+                            </td>
+                            <td class="text-end pe-4">
+                                <div class="btn-group">
+                                    <a th:href="@{/admin/classes/{id}(id=${cls.id})}" class="btn btn-sm btn-light" title="Xem chi tiết">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a th:href="@{/admin/schedules/class/{id}(id=${cls.id})}" class="btn btn-sm btn-light" title="Thời khóa biểu">
+                                        <i class="fas fa-calendar-alt"></i>
+                                    </a>
+                                    <a th:href="@{/admin/classes/{id}/edit(id=${cls.id})}" class="btn btn-sm btn-light" title="Chỉnh sửa">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-light text-danger" 
+                                            data-bs-toggle="modal" 
+                                            th:data-bs-target="'#deleteModal' + ${cls.id}"
+                                            title="Xóa">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
 
-                    <!-- Table -->
-                    <div class="table-responsive p-0">
-                        <table class="table align-items-center mb-0 table-hover">
-                            <thead>
-                                <tr>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Mã lớp</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Khóa học</th>
-                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Giảng viên</th>
-                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Thời gian</th>
-                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Sĩ số</th>
-                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Trạng thái</th>
-                                    <th class="text-secondary opacity-7"></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr th:each="clazz : ${classes}">
-                                    <td class="ps-4">
-                                        <div class="d-flex py-1">
-                                            <div class="d-flex flex-column justify-content-center">
-                                                <h6 class="mb-0 text-sm font-weight-bold" th:text="${clazz.classCode}">CODE</h6>
+                                <!-- Delete Modal -->
+                                <div class="modal fade" th:id="'deleteModal' + ${cls.id}" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Xác nhận xóa</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body text-start">
+                                                Bạn có chắc chắn muốn xóa lớp học <strong th:text="${cls.className}"></strong>?
+                                                <br>Hành động này không thể hoàn tác.
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                                                <form th:action="@{/admin/classes/{id}/delete(id=${cls.id})}" method="post">
+                                                    <button type="submit" class="btn btn-danger">Xóa</button>
+                                                </form>
                                             </div>
                                         </div>
-                                    </td>
-                                    <td>
-                                        <p class="text-xs font-weight-bold mb-0 text-dark" th:text="${clazz.course.name}">Course</p>
-                                        <p class="text-xs text-secondary mb-0" th:text="${clazz.className}">Class Name</p>
-                                    </td>
-                                    <td class="align-middle text-center">
-                                        <div class="d-flex flex-column justify-content-center align-items-center">
-                                            <p class="text-xs font-weight-bold mb-0" th:text="${clazz.teacher != null ? clazz.teacher.fullName : '---'}">Teacher</p>
-                                        </div>
-                                    </td>
-                                    <td class="align-middle text-center">
-                                        <span class="text-secondary text-xs font-weight-bold" th:text="${#temporals.format(clazz.startDate, 'dd/MM/yyyy')}">Start</span>
-                                        <p class="text-xs text-secondary mb-0" th:text="'đến ' + ${#temporals.format(clazz.endDate, 'dd/MM/yyyy')}">End</p>
-                                    </td>
-                                    <td class="align-middle text-center text-sm">
-                                        <span class="badge badge-sm bg-gradient-light text-dark border">
-                                            <span th:text="${clazz.currentStudents}">0</span> / <span th:text="${clazz.maxStudents}">30</span>
-                                        </span>
-                                    </td>
-                                    <td class="align-middle text-center text-sm">
-                                        <span class="badge badge-sm" 
-                                              th:classappend="${clazz.status.name() == 'ONGOING' ? 'bg-gradient-success' : (clazz.status.name() == 'PENDING' ? 'bg-gradient-warning' : 'bg-gradient-secondary')}"
-                                              th:text="${clazz.status}">STATUS</span>
-                                    </td>
-                                    <td class="align-middle text-end pe-4">
-                                        <a th:href="@{/admin/classes/{id}(id=${clazz.id})}" class="btn btn-link text-dark px-2 mb-0" data-bs-toggle="tooltip" data-bs-placement="top" title="Xem chi tiết">
-                                            <i class="material-symbols-rounded text-sm">visibility</i>
-                                        </a>
-                                        <a th:href="@{/admin/classes/{id}/edit(id=${clazz.id})}" class="btn btn-link text-dark px-2 mb-0" data-bs-toggle="tooltip" data-bs-placement="top" title="Chỉnh sửa">
-                                            <i class="material-symbols-rounded text-sm">edit</i>
-                                        </a>
-                                        <!-- Add delete button if needed, though not always present for classes with students -->
-                                        <form th:action="@{/admin/classes/{id}/delete(id=${clazz.id})}" method="post" class="d-inline-block"
-                                              th:attr="onsubmit='return confirmAction(event, \'' + 'Bạn có chắc chắn muốn xóa lớp ' + ${clazz.classCode} + '?' + '\');'">
-                                            <button type="submit" class="btn btn-link text-danger px-2 mb-0" data-bs-toggle="tooltip" data-bs-placement="top" title="Xóa">
-                                                <i class="material-symbols-rounded text-sm">delete</i>
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                                <tr th:if="${#lists.isEmpty(classes)}">
-                                    <td colspan="7" class="text-center py-5">
-                                        <div class="d-flex flex-column align-items-center justify-content-center">
-                                            <i class="material-symbols-rounded text-secondary opacity-5 text-5xl mb-3">school</i>
-                                            <h6 class="text-secondary font-weight-normal">Không tìm thấy lớp học nào.</h6>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(classes)}">
+                            <td colspan="7" class="text-center py-5 text-muted">
+                                <i class="fas fa-chalkboard fa-2x mb-3"></i>
+                                <p class="mb-0">Không tìm thấy lớp học nào</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
-</div>
 </body>
 </html>

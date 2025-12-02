@@ -98,4 +98,19 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
      */
     @Query("SELECT e.paymentStatus, COUNT(e) FROM Enrollment e GROUP BY e.paymentStatus")
     List<Object[]> countEnrollmentsByPaymentStatus();
+
+    @Query("SELECT e FROM Enrollment e " +
+           "LEFT JOIN FETCH e.student " +
+           "LEFT JOIN FETCH e.classEntity ce " +
+           "LEFT JOIN FETCH ce.course " +
+           "ORDER BY e.createdAt DESC")
+    List<Enrollment> findAllWithDetails();
+
+    @Query("SELECT e FROM Enrollment e " +
+           "LEFT JOIN FETCH e.student " +
+           "LEFT JOIN FETCH e.classEntity ce " +
+           "LEFT JOIN FETCH ce.course " +
+           "WHERE e.status = :status " +
+           "ORDER BY e.createdAt DESC")
+    List<Enrollment> findByStatusWithDetails(@Param("status") Enrollment.EnrollmentStatus status);
 }
