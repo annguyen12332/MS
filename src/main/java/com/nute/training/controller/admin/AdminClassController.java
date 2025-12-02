@@ -39,14 +39,26 @@ public class AdminClassController {
                       @RequestParam(required = false) String keyword,
                       Model model) {
 
-        if (keyword != null && !keyword.trim().isEmpty()) {
+        boolean hasKeyword = keyword != null && !keyword.trim().isEmpty();
+        boolean hasStatus = status != null && !status.isEmpty();
+
+        if (hasKeyword && hasStatus) {
+            // Both filters: status AND keyword
+            ClassEntity.ClassStatus classStatus = ClassEntity.ClassStatus.valueOf(status);
+            model.addAttribute("classes", classService.searchClassesByStatusAndKeyword(classStatus, keyword));
+            model.addAttribute("keyword", keyword);
+            model.addAttribute("selectedStatus", status);
+        } else if (hasKeyword) {
+            // Only keyword filter
             model.addAttribute("classes", classService.searchClasses(keyword));
             model.addAttribute("keyword", keyword);
-        } else if (status != null && !status.isEmpty()) {
+        } else if (hasStatus) {
+            // Only status filter
             ClassEntity.ClassStatus classStatus = ClassEntity.ClassStatus.valueOf(status);
             model.addAttribute("classes", classService.findByStatus(classStatus));
             model.addAttribute("selectedStatus", status);
         } else {
+            // No filters
             model.addAttribute("classes", classService.findAll());
         }
 

@@ -98,6 +98,14 @@ public class ClassService {
     }
 
     /**
+     * Tìm kiếm lớp theo trạng thái và từ khóa
+     */
+    @Transactional(readOnly = true)
+    public List<ClassEntity> searchClassesByStatusAndKeyword(ClassEntity.ClassStatus status, String keyword) {
+        return classRepository.searchClassesByStatusAndKeyword(status, keyword);
+    }
+
+    /**
      * Tạo lớp học mới
      * Business Rule:
      * - Class code phải unique

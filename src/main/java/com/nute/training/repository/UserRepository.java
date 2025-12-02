@@ -66,4 +66,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
            "LOWER(u.email) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
            "LOWER(u.fullName) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     List<User> searchUsers(@Param("keyword") String keyword);
+
+    /**
+     * Tìm kiếm user theo role và từ khóa
+     */
+    @Query("SELECT u FROM User u WHERE u.role = :role AND (" +
+           "LOWER(u.username) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+           "LOWER(u.email) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+           "LOWER(u.fullName) LIKE LOWER(CONCAT('%', :keyword, '%')))")
+    List<User> searchUsersByRoleAndKeyword(@Param("role") User.Role role, @Param("keyword") String keyword);
 }

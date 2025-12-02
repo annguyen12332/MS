@@ -75,6 +75,15 @@ public interface ClassRepository extends JpaRepository<ClassEntity, Long> {
     List<ClassEntity> searchClasses(@Param("keyword") String keyword);
 
     /**
+     * Tìm kiếm lớp theo trạng thái và từ khóa
+     */
+    @Query("SELECT c FROM ClassEntity c WHERE c.status = :status AND (" +
+           "LOWER(c.classCode) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+           "LOWER(c.className) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+           "LOWER(c.course.name) LIKE LOWER(CONCAT('%', :keyword, '%')))")
+    List<ClassEntity> searchClassesByStatusAndKeyword(@Param("status") ClassEntity.ClassStatus status, @Param("keyword") String keyword);
+
+    /**
      * Thống kê số lượng lớp theo trạng thái
      */
     @Query("SELECT c.status, COUNT(c) FROM ClassEntity c GROUP BY c.status")

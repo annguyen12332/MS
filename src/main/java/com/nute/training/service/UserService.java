@@ -89,6 +89,14 @@ public class UserService {
     }
 
     /**
+     * Tìm kiếm users theo role và từ khóa
+     */
+    @Transactional(readOnly = true)
+    public List<User> searchUsersByRoleAndKeyword(User.Role role, String keyword) {
+        return userRepository.searchUsersByRoleAndKeyword(role, keyword);
+    }
+
+    /**
      * Tạo user mới
      * Business Rule:
      * - Username và email phải unique

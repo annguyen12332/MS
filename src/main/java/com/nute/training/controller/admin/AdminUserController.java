@@ -31,14 +31,26 @@ public class AdminUserController {
                       @RequestParam(required = false) String keyword,
                       Model model) {
 
-        if (keyword != null && !keyword.trim().isEmpty()) {
+        boolean hasKeyword = keyword != null && !keyword.trim().isEmpty();
+        boolean hasRole = role != null && !role.isEmpty();
+
+        if (hasKeyword && hasRole) {
+            // Both filters: role AND keyword
+            User.Role userRole = User.Role.valueOf(role);
+            model.addAttribute("users", userService.searchUsersByRoleAndKeyword(userRole, keyword));
+            model.addAttribute("keyword", keyword);
+            model.addAttribute("selectedRole", role);
+        } else if (hasKeyword) {
+            // Only keyword filter
             model.addAttribute("users", userService.searchUsers(keyword));
             model.addAttribute("keyword", keyword);
-        } else if (role != null && !role.isEmpty()) {
+        } else if (hasRole) {
+            // Only role filter
             User.Role userRole = User.Role.valueOf(role);
             model.addAttribute("users", userService.findByRole(userRole));
             model.addAttribute("selectedRole", role);
         } else {
+            // No filters
             model.addAttribute("users", userService.findAll());
         }
 

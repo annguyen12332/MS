@@ -89,6 +89,10 @@ public class AdminScheduleController {
                         RedirectAttributes redirectAttributes) {
 
         if (result.hasErrors()) {
+            if (schedule.getClassEntity() != null && schedule.getClassEntity().getId() != null) {
+                classService.findById(schedule.getClassEntity().getId())
+                        .ifPresent(c -> model.addAttribute("classEntity", c));
+            }
             model.addAttribute("statuses", Schedule.ScheduleStatus.values());
             return "admin/schedules/form";
         }
@@ -100,6 +104,10 @@ public class AdminScheduleController {
             return "redirect:/admin/schedules/class/" + schedule.getClassEntity().getId();
         } catch (Exception e) {
             log.error("Error creating schedule", e);
+            if (schedule.getClassEntity() != null && schedule.getClassEntity().getId() != null) {
+                classService.findById(schedule.getClassEntity().getId())
+                        .ifPresent(c -> model.addAttribute("classEntity", c));
+            }
             model.addAttribute("error", e.getMessage());
             model.addAttribute("statuses", Schedule.ScheduleStatus.values());
             return "admin/schedules/form";
@@ -138,6 +146,10 @@ public class AdminScheduleController {
                         RedirectAttributes redirectAttributes) {
 
         if (result.hasErrors()) {
+            if (schedule.getClassEntity() != null && schedule.getClassEntity().getId() != null) {
+                classService.findById(schedule.getClassEntity().getId())
+                        .ifPresent(c -> model.addAttribute("classEntity", c));
+            }
             model.addAttribute("statuses", Schedule.ScheduleStatus.values());
             return "admin/schedules/form";
         }
@@ -149,6 +161,10 @@ public class AdminScheduleController {
             return "redirect:/admin/schedules/class/" + schedule.getClassEntity().getId();
         } catch (Exception e) {
             log.error("Error updating schedule", e);
+            if (schedule.getClassEntity() != null && schedule.getClassEntity().getId() != null) {
+                classService.findById(schedule.getClassEntity().getId())
+                        .ifPresent(c -> model.addAttribute("classEntity", c));
+            }
             model.addAttribute("error", e.getMessage());
             model.addAttribute("statuses", Schedule.ScheduleStatus.values());
             return "admin/schedules/form";
