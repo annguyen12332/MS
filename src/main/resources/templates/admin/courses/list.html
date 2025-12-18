@@ -61,8 +61,8 @@
                                 </div>
                             </td>
                             <td>
-                                <span class="badge bg-info bg-opacity-10 text-info" 
-                                      th:text="${course.courseType.name}">Type</span>
+                                <span class="badge bg-info bg-opacity-10 text-info"
+                                      th:text="${course.courseType != null ? course.courseType.name : 'Chưa xác định'}">Type</span>
                             </td>
                             <td>
                                 <i class="far fa-clock me-1 text-muted"></i>
