@@ -30,7 +30,13 @@ public interface GradeRepository extends JpaRepository<Grade, Long> {
     /**
      * Tìm điểm theo học viên (thông qua enrollment)
      */
-    @Query("SELECT g FROM Grade g WHERE g.enrollment.student.id = :studentId")
+    @Query("SELECT DISTINCT g FROM Grade g " +
+           "LEFT JOIN FETCH g.enrollment e " +
+           "LEFT JOIN FETCH e.classEntity c " +
+           "LEFT JOIN FETCH c.course " +
+           "LEFT JOIN FETCH c.teacher " +
+           "WHERE e.student.id = :studentId " +
+           "ORDER BY c.className ASC, g.createdAt DESC")
     List<Grade> findGradesByStudent(@Param("studentId") Long studentId);
 
     /**

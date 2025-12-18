@@ -132,6 +132,7 @@ public class AttendanceService {
     /**
      * Điểm danh hàng loạt cho tất cả học viên trong lớp
      * Business Rule: Chỉ điểm danh cho học viên đã được APPROVED
+     * Cập nhật: Nếu đã có điểm danh thì cập nhật, chưa có thì tạo mới
      */
     public void markAttendanceForAllStudents(Schedule schedule,
                                              Attendance.AttendanceStatus defaultStatus,
@@ -142,26 +143,41 @@ public class AttendanceService {
         List<Enrollment> enrollments = enrollmentRepository
                 .findApprovedEnrollmentsByClass(schedule.getClassEntity());
 
-        int markedCount = 0;
+        int createdCount = 0;
+        int updatedCount = 0;
+
         for (Enrollment enrollment : enrollments) {
-            // Skip if already marked
-            if (attendanceRepository.existsByScheduleAndStudent(
-                    schedule, enrollment.getStudent())) {
-                continue;
+            User student = enrollment.getStudent();
+
+            // Kiểm tra xem đã có điểm danh chưa
+            Optional<Attendance> existingAttendance = attendanceRepository
+                    .findByScheduleAndStudent(schedule, student);
+
+            if (existingAttendance.isPresent()) {
+                // CẬP NHẬT điểm danh hiện có
+                Attendance attendance = existingAttendance.get();
+                attendance.setStatus(defaultStatus);
+                attendance.setMarkedBy(markedBy);
+                attendance.setMarkedAt(LocalDateTime.now());
+                attendanceRepository.save(attendance);
+                updatedCount++;
+                log.debug("Updated attendance for student: {}", student.getUsername());
+            } else {
+                // TẠO MỚI điểm danh
+                Attendance attendance = new Attendance();
+                attendance.setSchedule(schedule);
+                attendance.setStudent(student);
+                attendance.setStatus(defaultStatus);
+                attendance.setMarkedBy(markedBy);
+                attendance.setMarkedAt(LocalDateTime.now());
+                attendanceRepository.save(attendance);
+                createdCount++;
+                log.debug("Created attendance for student: {}", student.getUsername());
             }
-
-            Attendance attendance = new Attendance();
-            attendance.setSchedule(schedule);
-            attendance.setStudent(enrollment.getStudent());
-            attendance.setStatus(defaultStatus);
-            attendance.setMarkedBy(markedBy);
-            attendance.setMarkedAt(LocalDateTime.now());
-
-            attendanceRepository.save(attendance);
-            markedCount++;
         }
 
-        log.info("Marked attendance for {} students", markedCount);
+        log.info("Attendance summary - Created: {}, Updated: {}, Total: {}",
+                createdCount, updatedCount, createdCount + updatedCount);
     }
 
     /**

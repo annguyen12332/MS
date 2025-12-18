@@ -313,4 +313,16 @@ public class EnrollmentService {
         log.info("Found {} enrollment records for student: {}", history.size(), student.getUsername());
         return history;
     }
+
+    /**
+     * Tìm tất cả enrollment đã được duyệt của học sinh
+     * Dùng cho trang xem điểm - hiển thị cả lớp chưa có điểm
+     */
+    @Transactional(readOnly = true)
+    public List<Enrollment> findApprovedEnrollmentsByStudent(Long studentId) {
+        log.info("Finding approved enrollments for student ID: {}", studentId);
+        List<Enrollment> enrollments = enrollmentRepository.findApprovedEnrollmentsByStudent(studentId);
+        log.info("Found {} approved enrollments for student ID: {}", enrollments.size(), studentId);
+        return enrollments;
+    }
 }

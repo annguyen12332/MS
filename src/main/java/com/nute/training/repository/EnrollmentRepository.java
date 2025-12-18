@@ -168,4 +168,17 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
            "WHERE e.student = :student " +
            "ORDER BY e.createdAt DESC")
     List<EnrollmentHistoryDto> findEnrollmentHistoryByStudent(@Param("student") User student);
+
+    /**
+     * Tìm tất cả enrollment đã được duyệt của học sinh
+     * (Dùng cho trang xem điểm - hiển thị cả lớp chưa có điểm)
+     */
+    @Query("SELECT e FROM Enrollment e " +
+           "LEFT JOIN FETCH e.classEntity c " +
+           "LEFT JOIN FETCH c.course " +
+           "LEFT JOIN FETCH c.teacher " +
+           "WHERE e.student.id = :studentId " +
+           "AND e.status IN ('APPROVED', 'COMPLETED') " +
+           "ORDER BY c.className ASC")
+    List<Enrollment> findApprovedEnrollmentsByStudent(@Param("studentId") Long studentId);
 }

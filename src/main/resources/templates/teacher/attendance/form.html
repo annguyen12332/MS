@@ -168,23 +168,25 @@
                                     <td th:text="${enrollment.student.email}">student@example.com</td>
                                     <td class="text-center">
                                         <!-- Display existing attendance status -->
-                                        <th:block th:with="attendance=${existingAttendances.?[student.id == enrollment.student.id].![0]}">
-                                            <span th:if="${attendance != null && attendance.status == T(com.nute.training.entity.Attendance.AttendanceStatus).PRESENT}"
-                                                  class="badge bg-success status-badge">
-                                                <i class="fas fa-check-circle me-1"></i>Có mặt
-                                            </span>
-                                            <span th:if="${attendance != null && attendance.status == T(com.nute.training.entity.Attendance.AttendanceStatus).ABSENT}"
-                                                  class="badge bg-danger status-badge">
-                                                <i class="fas fa-times-circle me-1"></i>Vắng
-                                            </span>
-                                            <span th:if="${attendance != null && attendance.status == T(com.nute.training.entity.Attendance.AttendanceStatus).LATE}"
-                                                  class="badge bg-warning status-badge">
-                                                <i class="fas fa-clock me-1"></i>Đi muộn
-                                            </span>
-                                            <span th:if="${attendance != null && attendance.status == T(com.nute.training.entity.Attendance.AttendanceStatus).EXCUSED}"
-                                                  class="badge bg-info status-badge">
-                                                <i class="fas fa-file-medical me-1"></i>Có phép
-                                            </span>
+                                        <th:block th:with="attendance=${attendanceMap[enrollment.student.id]}">
+                                            <th:block th:if="${attendance != null}">
+                                                <span th:if="${attendance.status.name() == 'PRESENT'}"
+                                                      class="badge bg-success status-badge">
+                                                    <i class="fas fa-check-circle me-1"></i>Có mặt
+                                                </span>
+                                                <span th:if="${attendance.status.name() == 'ABSENT'}"
+                                                      class="badge bg-danger status-badge">
+                                                    <i class="fas fa-times-circle me-1"></i>Vắng
+                                                </span>
+                                                <span th:if="${attendance.status.name() == 'LATE'}"
+                                                      class="badge bg-warning status-badge">
+                                                    <i class="fas fa-clock me-1"></i>Đi muộn
+                                                </span>
+                                                <span th:if="${attendance.status.name() == 'EXCUSED'}"
+                                                      class="badge bg-info status-badge">
+                                                    <i class="fas fa-file-medical me-1"></i>Có phép
+                                                </span>
+                                            </th:block>
                                             <span th:if="${attendance == null}"
                                                   class="badge bg-secondary status-badge">
                                                 <i class="fas fa-question-circle me-1"></i>Chưa điểm danh
@@ -192,13 +194,24 @@
                                         </th:block>
                                     </td>
                                     <td class="text-center">
-                                        <button type="button"
-                                                class="btn btn-sm btn-outline-primary"
-                                                data-bs-toggle="modal"
-                                                th:data-bs-target="'#attendanceModal' + ${enrollment.id}">
-                                            <i class="fas fa-edit me-1"></i>
-                                            Điểm danh
-                                        </button>
+                                        <th:block th:with="attendance=${attendanceMap[enrollment.student.id]}">
+                                            <button th:if="${attendance != null}"
+                                                    type="button"
+                                                    class="btn btn-sm btn-outline-warning"
+                                                    data-bs-toggle="modal"
+                                                    th:data-bs-target="'#updateAttendanceModal' + ${enrollment.id}">
+                                                <i class="fas fa-edit me-1"></i>
+                                                Cập nhật
+                                            </button>
+                                            <button th:if="${attendance == null}"
+                                                    type="button"
+                                                    class="btn btn-sm btn-outline-primary"
+                                                    data-bs-toggle="modal"
+                                                    th:data-bs-target="'#attendanceModal' + ${enrollment.id}">
+                                                <i class="fas fa-check me-1"></i>
+                                                Điểm danh
+                                            </button>
+                                        </th:block>
                                     </td>
                                 </tr>
                             </tbody>
@@ -210,6 +223,7 @@
 
         <!-- Attendance Modals -->
         <div th:each="enrollment : ${enrollments}">
+            <!-- Modal: Điểm danh mới -->
             <div class="modal fade" th:id="'attendanceModal' + ${enrollment.id}" tabindex="-1">
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content">
@@ -257,6 +271,58 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Modal: Cập nhật điểm danh -->
+            <th:block th:with="attendance=${attendanceMap[enrollment.student.id]}">
+                <div th:if="${attendance != null}"
+                     class="modal fade" th:id="'updateAttendanceModal' + ${enrollment.id}" tabindex="-1">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <form th:action="@{/teacher/attendance/attendance/{id}/update(id=${attendance.id})}"
+                                  method="post">
+                                <input type="hidden" name="scheduleId" th:value="${schedule.id}"/>
+
+                                <div class="modal-header">
+                                    <h5 class="modal-title">
+                                        <i class="fas fa-edit me-2"></i>
+                                        Cập nhật điểm danh - <span th:text="${enrollment.student.fullName}">Học viên</span>
+                                    </h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+
+                                <div class="modal-body">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Trạng thái điểm danh</label>
+                                        <select class="form-select" name="status" required>
+                                            <option value="PRESENT" th:selected="${attendance.status.name() == 'PRESENT'}">✓ Có mặt</option>
+                                            <option value="ABSENT" th:selected="${attendance.status.name() == 'ABSENT'}">✗ Vắng</option>
+                                            <option value="LATE" th:selected="${attendance.status.name() == 'LATE'}">⏰ Đi muộn</option>
+                                            <option value="EXCUSED" th:selected="${attendance.status.name() == 'EXCUSED'}">📝 Có phép</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Ghi chú (tùy chọn)</label>
+                                        <textarea class="form-control" name="note" rows="3"
+                                                  th:text="${attendance.note}"
+                                                  placeholder="Nhập ghi chú nếu cần..."></textarea>
+                                    </div>
+                                </div>
+
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                        Hủy
+                                    </button>
+                                    <button type="submit" class="btn btn-warning">
+                                        <i class="fas fa-save me-2"></i>
+                                        Cập nhật
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </th:block>
         </div>
     </div>
 

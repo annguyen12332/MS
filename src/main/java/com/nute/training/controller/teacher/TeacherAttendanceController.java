@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Controller: TeacherAttendanceController
@@ -99,9 +101,18 @@ public class TeacherAttendanceController {
         // Get existing attendances
         var existingAttendances = attendanceService.findBySchedule(schedule);
 
+        // Create a map: studentId -> Attendance for easier lookup in template
+        Map<Long, Attendance> attendanceMap = existingAttendances.stream()
+                .collect(Collectors.toMap(
+                        a -> a.getStudent().getId(),
+                        a -> a,
+                        (existing, replacement) -> existing // Keep first if duplicate
+                ));
+
         model.addAttribute("schedule", schedule);
         model.addAttribute("enrollments", approvedEnrollments);
         model.addAttribute("existingAttendances", existingAttendances);
+        model.addAttribute("attendanceMap", attendanceMap);
         model.addAttribute("attendanceStatuses", Attendance.AttendanceStatus.values());
         model.addAttribute("pageTitle", "Điểm danh - Buổi " + schedule.getSessionNumber());
         return "teacher/attendance/form";
