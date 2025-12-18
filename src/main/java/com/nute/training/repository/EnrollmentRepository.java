@@ -1,5 +1,6 @@
 package com.nute.training.repository;
 
+import com.nute.training.dto.EnrollmentHistoryDto;
 import com.nute.training.entity.ClassEntity;
 import com.nute.training.entity.Enrollment;
 import com.nute.training.entity.User;
@@ -126,4 +127,41 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
             @Param("studentId") Long studentId,
             @Param("classId") Long classId
     );
+
+    /**
+     * Tìm enrollment history của học viên với DTO projection
+     * (Single optimized query - không có N+1 problem)
+     */
+    @Query("SELECT new com.nute.training.dto.EnrollmentHistoryDto(" +
+           "e.id, " +
+           "e.enrollmentDate, " +
+           "e.status, " +
+           "e.paymentStatus, " +
+           "e.paymentAmount, " +
+           "e.notes, " +
+           "e.approvedAt, " +
+           "c.id, " +
+           "c.classCode, " +
+           "c.className, " +
+           "c.room, " +
+           "c.startDate, " +
+           "c.endDate, " +
+           "co.id, " +
+           "co.name, " +
+           "co.code, " +
+           "co.tuitionFee, " +
+           "t.id, " +
+           "t.fullName, " +
+           "t.email, " +
+           "ab.id, " +
+           "ab.fullName" +
+           ") " +
+           "FROM Enrollment e " +
+           "JOIN e.classEntity c " +
+           "JOIN c.course co " +
+           "LEFT JOIN c.teacher t " +
+           "LEFT JOIN e.approvedBy ab " +
+           "WHERE e.student = :student " +
+           "ORDER BY e.createdAt DESC")
+    List<EnrollmentHistoryDto> findEnrollmentHistoryByStudent(@Param("student") User student);
 }

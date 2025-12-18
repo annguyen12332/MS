@@ -92,18 +92,26 @@ public interface ClassRepository extends JpaRepository<ClassEntity, Long> {
     /**
      * Tìm lớp chưa đầy (còn chỗ)
      * Cho phép đăng ký lớp PENDING (chưa bắt đầu) và ONGOING (đang diễn ra)
+     * Eager fetch course và teacher để tránh N+1 problem
      */
-    @Query("SELECT c FROM ClassEntity c WHERE " +
-           "(c.status = 'PENDING' OR c.status = 'ONGOING') AND c.currentStudents < c.maxStudents " +
+    @Query("SELECT DISTINCT c FROM ClassEntity c " +
+           "LEFT JOIN FETCH c.course " +
+           "LEFT JOIN FETCH c.teacher " +
+           "WHERE (c.status = 'PENDING' OR c.status = 'ONGOING') " +
+           "AND c.currentStudents < c.maxStudents " +
            "ORDER BY c.startDate ASC")
     List<ClassEntity> findAvailableClasses();
 
     /**
      * Tìm lớp đang mở đăng ký theo khóa học
      * Cho phép đăng ký lớp PENDING (chưa bắt đầu) và ONGOING (đang diễn ra)
+     * Eager fetch course và teacher để tránh N+1 problem
      */
-    @Query("SELECT c FROM ClassEntity c WHERE " +
-           "c.course = :course AND (c.status = 'PENDING' OR c.status = 'ONGOING') " +
+    @Query("SELECT DISTINCT c FROM ClassEntity c " +
+           "LEFT JOIN FETCH c.course " +
+           "LEFT JOIN FETCH c.teacher " +
+           "WHERE c.course = :course " +
+           "AND (c.status = 'PENDING' OR c.status = 'ONGOING') " +
            "AND c.currentStudents < c.maxStudents " +
            "ORDER BY c.startDate ASC")
     List<ClassEntity> findOpenClassesByCourse(@Param("course") Course course);

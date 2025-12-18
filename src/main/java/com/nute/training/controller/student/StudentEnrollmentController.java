@@ -92,14 +92,14 @@ public class StudentEnrollmentController {
     }
 
     /**
-     * Xem lịch sử đăng ký
+     * Xem lịch sử đăng ký (Optimized with DTO projection)
      */
     @GetMapping("/history")
     public String history(Model model) {
         User currentStudent = authenticationHelper.getCurrentUser()
                 .orElseThrow(() -> new UnauthorizedException());
 
-        model.addAttribute("enrollments", enrollmentService.findByStudent(currentStudent));
+        model.addAttribute("enrollments", enrollmentService.findEnrollmentHistoryByStudent(currentStudent));
         model.addAttribute("pageTitle", "Lớp học của tôi");
         return "student/enrollments/history";
     }

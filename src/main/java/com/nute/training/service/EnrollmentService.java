@@ -1,5 +1,6 @@
 package com.nute.training.service;
 
+import com.nute.training.dto.EnrollmentHistoryDto;
 import com.nute.training.entity.ClassEntity;
 import com.nute.training.entity.Enrollment;
 import com.nute.training.entity.User;
@@ -299,5 +300,17 @@ public class EnrollmentService {
     @Transactional(readOnly = true)
     public Optional<Enrollment> findApprovedEnrollmentByStudentAndClass(Long studentId, Long classId) {
         return enrollmentRepository.findApprovedEnrollmentByStudentAndClass(studentId, classId);
+    }
+
+    /**
+     * Tìm enrollment history của học viên với DTO projection
+     * (Optimized - single query, không có N+1 problem)
+     */
+    @Transactional(readOnly = true)
+    public List<EnrollmentHistoryDto> findEnrollmentHistoryByStudent(User student) {
+        log.info("Finding enrollment history for student: {}", student.getUsername());
+        List<EnrollmentHistoryDto> history = enrollmentRepository.findEnrollmentHistoryByStudent(student);
+        log.info("Found {} enrollment records for student: {}", history.size(), student.getUsername());
+        return history;
     }
 }
