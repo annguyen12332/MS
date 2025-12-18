@@ -34,12 +34,8 @@
                                     <p class="text-muted mb-3" th:text="${classEntity.course.name}">Tên khóa học</p>
                                     <div class="d-flex gap-2 flex-wrap">
                                         <span class="badge"
-                                              th:classappend="${classEntity.status.name() == 'ONGOING'} ? 'bg-success' :
-                                                             ${classEntity.status.name() == 'PENDING'} ? 'bg-warning' :
-                                                             ${classEntity.status.name() == 'COMPLETED'} ? 'bg-secondary' : 'bg-danger'"
-                                              th:text="${classEntity.status.name() == 'ONGOING'} ? 'Đang diễn ra' :
-                                                        ${classEntity.status.name() == 'PENDING'} ? 'Chờ bắt đầu' :
-                                                        ${classEntity.status.name() == 'COMPLETED'} ? 'Đã kết thúc' : 'Đã hủy'">
+                                              th:classappend="${classEntity.status.name() == 'ONGOING' ? 'bg-success' : (classEntity.status.name() == 'PENDING' ? 'bg-warning' : (classEntity.status.name() == 'COMPLETED' ? 'bg-secondary' : 'bg-danger'))}"
+                                              th:text="${classEntity.status.name() == 'ONGOING' ? 'Đang diễn ra' : (classEntity.status.name() == 'PENDING' ? 'Chờ bắt đầu' : (classEntity.status.name() == 'COMPLETED' ? 'Đã kết thúc' : 'Đã hủy'))}">
                                             Trạng thái
                                         </span>
                                         <span class="badge bg-light text-dark">

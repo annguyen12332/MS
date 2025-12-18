@@ -20,7 +20,7 @@ import java.time.LocalDate;
  * Giảng viên xem lịch dạy
  */
 @Controller
-@RequestMapping("/teacher/schedule")
+@RequestMapping("/teacher/schedules")
 @RequiredArgsConstructor
 @Slf4j
 public class TeacherScheduleController {
