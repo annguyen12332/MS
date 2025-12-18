@@ -1,5 +1,6 @@
 package com.nute.training.exception;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 /**
@@ -42,6 +44,44 @@ public class GlobalExceptionHandler {
         ModelAndView modelAndView = new ModelAndView("error/404");
         modelAndView.addObject("errorMessage", "Trang bạn tìm kiếm không tồn tại.");
         return modelAndView;
+    }
+
+    /**
+     * Xử lý lỗi UnauthorizedException (Chưa đăng nhập)
+     */
+    @ExceptionHandler(UnauthorizedException.class)
+    public String handleUnauthorizedException(UnauthorizedException ex, RedirectAttributes redirectAttributes) {
+        log.warn("Unauthorized: {}", ex.getMessage());
+        redirectAttributes.addFlashAttribute("error", ex.getMessage());
+        return "redirect:/login";
+    }
+
+    /**
+     * Xử lý lỗi ResourceNotFoundException (Không tìm thấy tài nguyên)
+     */
+    @ExceptionHandler(ResourceNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ModelAndView handleResourceNotFoundException(ResourceNotFoundException ex, HttpServletRequest request) {
+        log.warn("Resource Not Found: {} - URL: {}", ex.getMessage(), request.getRequestURI());
+        ModelAndView modelAndView = new ModelAndView("error/404");
+        modelAndView.addObject("errorMessage", ex.getMessage());
+        return modelAndView;
+    }
+
+    /**
+     * Xử lý lỗi BusinessException (Vi phạm business rules)
+     */
+    @ExceptionHandler(BusinessException.class)
+    public String handleBusinessException(BusinessException ex, RedirectAttributes redirectAttributes, HttpServletRequest request) {
+        log.warn("Business Rule Violation: {} - URL: {}", ex.getMessage(), request.getRequestURI());
+        redirectAttributes.addFlashAttribute("error", ex.getMessage());
+
+        // Redirect về trang trước đó nếu có, nếu không thì về dashboard
+        String referer = request.getHeader("Referer");
+        if (referer != null && !referer.isEmpty()) {
+            return "redirect:" + referer;
+        }
+        return "redirect:/dashboard";
     }
 
     /**

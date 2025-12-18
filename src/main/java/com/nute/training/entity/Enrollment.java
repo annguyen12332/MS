@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
@@ -23,6 +24,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@SQLRestriction("deleted = false")
 public class Enrollment {
 
     @Id
@@ -73,6 +75,16 @@ public class Enrollment {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(name = "deleted")
+    private Boolean deleted = false;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "deleted_by")
+    private User deletedBy;
+
     /**
      * Enum: EnrollmentStatus
      * Trạng thái đăng ký
@@ -103,5 +115,14 @@ public class Enrollment {
             return false;
         }
         return paymentAmount.compareTo(tuitionFee) >= 0;
+    }
+
+    /**
+     * Soft delete helper method
+     */
+    public void markAsDeleted(User deletedByUser) {
+        this.deleted = true;
+        this.deletedAt = LocalDateTime.now();
+        this.deletedBy = deletedByUser;
     }
 }

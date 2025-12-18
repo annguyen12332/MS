@@ -85,6 +85,14 @@ public class EnrollmentService {
     }
 
     /**
+     * Tìm đăng ký của học viên trong lớp học cụ thể
+     */
+    @Transactional(readOnly = true)
+    public Optional<Enrollment> findByStudentAndClass(User student, ClassEntity classEntity) {
+        return enrollmentRepository.findByStudentAndClassEntity(student, classEntity);
+    }
+
+    /**
      * Tạo đăng ký học mới (Student tự đăng ký)
      * Business Rule:
      * - Học viên chỉ được đăng ký 1 lần cho 1 lớp
@@ -282,5 +290,14 @@ public class EnrollmentService {
     @Transactional(readOnly = true)
     public Long countApprovedEnrollmentsByClass(ClassEntity classEntity) {
         return enrollmentRepository.countApprovedEnrollmentsByClass(classEntity);
+    }
+
+    /**
+     * Tìm enrollment đã duyệt của học viên trong lớp cụ thể
+     * (Optimized - direct query, không cần load toàn bộ danh sách rồi filter)
+     */
+    @Transactional(readOnly = true)
+    public Optional<Enrollment> findApprovedEnrollmentByStudentAndClass(Long studentId, Long classId) {
+        return enrollmentRepository.findApprovedEnrollmentByStudentAndClass(studentId, classId);
     }
 }

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{teacher/layout :: layout(~{::title}, ~{::content}, ~{::head}, ~{::scripts})}">
+<head>
+    <title th:text="${pageTitle}">Lịch dạy của tôi</title>
+    <th:block th:fragment="head">
+        <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css' rel='stylesheet' />
+    </th:block>
+</head>
+<body>
+    <div th:fragment="content">
+        <div class="container-fluid py-4">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h4 class="mb-1 fw-bold">
+                        <i class="fas fa-calendar-alt text-primary me-2"></i>
+                        Lịch dạy của tôi
+                    </h4>
+                    <p class="text-muted small mb-0">Xem lịch giảng dạy và quản lý thời khóa biểu</p>
+                </div>
+                <div>
+                    <a th:href="@{/teacher/attendance}" class="btn btn-outline-primary">
+                        <i class="fas fa-clipboard-check me-2"></i>
+                        Điểm danh
+                    </a>
+                </div>
+            </div>
+
+            <!-- Calendar Card -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div id="calendar"></div>
+                </div>
+            </div>
+
+            <!-- Upcoming Sessions -->
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="fas fa-clock me-2 text-primary"></i>
+                        Các buổi học sắp tới
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive" th:if="${!schedules.isEmpty()}">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Ngày học</th>
+                                    <th>Thời gian</th>
+                                    <th>Lớp học</th>
+                                    <th>Phòng</th>
+                                    <th>Chủ đề</th>
+                                    <th class="text-center">Trạng thái</th>
+                                    <th class="text-center">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="schedule : ${schedules}"
+                                    th:if="${schedule.sessionDate >= T(java.time.LocalDate).now()}">
+                                    <td>
+                                        <i class="fas fa-calendar me-2 text-muted"></i>
+                                        <span th:text="${#temporals.format(schedule.sessionDate, 'dd/MM/yyyy (EEEE)')}">
+                                            01/01/2024
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <i class="fas fa-clock me-2 text-muted"></i>
+                                        <span th:text="${#temporals.format(schedule.startTime, 'HH:mm')}">08:00</span>
+                                        -
+                                        <span th:text="${#temporals.format(schedule.endTime, 'HH:mm')}">10:00</span>
+                                    </td>
+                                    <td>
+                                        <div class="fw-medium" th:text="${schedule.classEntity.className}">
+                                            Lập trình Java
+                                        </div>
+                                        <div class="small text-muted" th:text="${schedule.classEntity.classCode}">
+                                            IT101-2024A
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <i class="fas fa-door-open me-2 text-muted"></i>
+                                        <span th:text="${schedule.room} ?: 'Chưa xác định'">Phòng A101</span>
+                                    </td>
+                                    <td>
+                                        <span th:text="${schedule.topic} ?: '-'"
+                                              class="text-truncate d-inline-block" style="max-width: 200px;">
+                                            Giới thiệu Java
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span th:if="${schedule.status == T(com.nute.training.entity.Schedule.ScheduleStatus).SCHEDULED}"
+                                              class="badge bg-info">
+                                            <i class="fas fa-calendar-check me-1"></i>Đã lên lịch
+                                        </span>
+                                        <span th:if="${schedule.status == T(com.nute.training.entity.Schedule.ScheduleStatus).COMPLETED}"
+                                              class="badge bg-success">
+                                            <i class="fas fa-check-circle me-1"></i>Hoàn thành
+                                        </span>
+                                        <span th:if="${schedule.status == T(com.nute.training.entity.Schedule.ScheduleStatus).CANCELLED}"
+                                              class="badge bg-danger">
+                                            <i class="fas fa-ban me-1"></i>Đã hủy
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <a th:href="@{/teacher/attendance/schedule/{id}(id=${schedule.id})}"
+                                           class="btn btn-sm btn-primary"
+                                           th:if="${schedule.status != T(com.nute.training.entity.Schedule.ScheduleStatus).CANCELLED}">
+                                            <i class="fas fa-clipboard-check me-1"></i>
+                                            Điểm danh
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div th:if="${schedules.isEmpty()}" class="text-center py-5">
+                        <div class="mb-4">
+                            <i class="fas fa-calendar-times fa-4x text-muted opacity-50"></i>
+                        </div>
+                        <h5 class="text-muted">Chưa có lịch dạy nào</h5>
+                        <p class="text-muted">Bạn chưa có lịch giảng dạy trong tháng này</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <th:block th:fragment="scripts">
+        <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+            document.addEventListener('DOMContentLoaded', function() {
+                var calendarEl = document.getElementById('calendar');
+
+                // Prepare events data from Thymeleaf
+                var schedules = /*[[${schedules}]]*/ [];
+                var events = schedules.map(function(schedule) {
+                    var statusColor = '#0dcaf0'; // info - SCHEDULED
+                    if (schedule.status === 'COMPLETED') {
+                        statusColor = '#198754'; // success
+                    } else if (schedule.status === 'CANCELLED') {
+                        statusColor = '#dc3545'; // danger
+                    }
+
+                    return {
+                        title: schedule.classEntity.className + ' - ' + (schedule.topic || 'Buổi ' + schedule.sessionNumber),
+                        start: schedule.sessionDate + 'T' + schedule.startTime,
+                        end: schedule.sessionDate + 'T' + schedule.endTime,
+                        backgroundColor: statusColor,
+                        borderColor: statusColor,
+                        extendedProps: {
+                            scheduleId: schedule.id,
+                            className: schedule.classEntity.className,
+                            classCode: schedule.classEntity.classCode,
+                            room: schedule.room,
+                            topic: schedule.topic,
+                            status: schedule.status
+                        }
+                    };
+                });
+
+                var calendar = new FullCalendar.Calendar(calendarEl, {
+                    initialView: 'dayGridMonth',
+                    locale: 'vi',
+                    headerToolbar: {
+                        left: 'prev,next today',
+                        center: 'title',
+                        right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                    },
+                    buttonText: {
+                        today: 'Hôm nay',
+                        month: 'Tháng',
+                        week: 'Tuần',
+                        day: 'Ngày'
+                    },
+                    events: events,
+                    eventClick: function(info) {
+                        var scheduleId = info.event.extendedProps.scheduleId;
+                        var status = info.event.extendedProps.status;
+
+                        if (status !== 'CANCELLED') {
+                            window.location.href = '/teacher/attendance/schedule/' + scheduleId;
+                        }
+                    },
+                    eventContent: function(arg) {
+                        let html = '<div class="fc-event-main-frame">';
+                        html += '<div class="fc-event-time">' + arg.timeText + '</div>';
+                        html += '<div class="fc-event-title-container">';
+                        html += '<div class="fc-event-title fc-sticky">' + arg.event.title + '</div>';
+                        if (arg.event.extendedProps.room) {
+                            html += '<div class="fc-event-room small"><i class="fas fa-door-open me-1"></i>' + arg.event.extendedProps.room + '</div>';
+                        }
+                        html += '</div></div>';
+                        return { html: html };
+                    },
+                    height: 'auto'
+                });
+
+                calendar.render();
+            });
+            /*]]>*/
+        </script>
+        <style>
+            .fc-event {
+                cursor: pointer;
+            }
+            .fc-event-room {
+                opacity: 0.8;
+                margin-top: 2px;
+            }
+        </style>
+    </th:block>
+</body>
+</html>

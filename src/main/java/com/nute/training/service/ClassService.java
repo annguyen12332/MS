@@ -90,6 +90,14 @@ public class ClassService {
     }
 
     /**
+     * Tìm lớp đang mở đăng ký theo khóa học
+     */
+    @Transactional(readOnly = true)
+    public List<ClassEntity> findOpenClassesByCourse(Course course) {
+        return classRepository.findOpenClassesByCourse(course);
+    }
+
+    /**
      * Tìm kiếm lớp
      */
     @Transactional(readOnly = true)

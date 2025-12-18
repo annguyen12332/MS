@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{student/layout :: layout(~{::title}, ~{::content}, ~{}, ~{})}">
+<head>
+    <title>Trang chủ - Học viên</title>
+</head>
+<body>
+    <div th:fragment="content">
+        <!-- Welcome Section -->
+        <div class="mb-4">
+            <h4 class="fw-bold mb-1">Chào mừng trở lại, <span th:text="${studentName}">Học viên</span>! 👋</h4>
+            <p class="text-muted mb-0">Đây là tổng quan về quá trình học tập của bạn</p>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="row g-4 mb-4">
+            <!-- Active Courses Card -->
+            <div class="col-12 col-md-6 col-xl-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div class="avatar-lg bg-primary bg-opacity-10 rounded p-3 text-primary">
+                                <i class="fas fa-book-open fa-2x"></i>
+                            </div>
+                        </div>
+                        <h6 class="text-muted fw-semibold mb-1">Khóa học đang theo học</h6>
+                        <h3 class="fw-bold mb-0" th:text="${activeCoursesCount}">0</h3>
+                        <small class="text-muted">khóa học đã được phê duyệt</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Enrollments Card -->
+            <div class="col-12 col-md-6 col-xl-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div class="avatar-lg bg-success bg-opacity-10 rounded p-3 text-success">
+                                <i class="fas fa-clipboard-check fa-2x"></i>
+                            </div>
+                        </div>
+                        <h6 class="text-muted fw-semibold mb-1">Tổng số đăng ký</h6>
+                        <h3 class="fw-bold mb-0" th:text="${#lists.size(enrollments)}">0</h3>
+                        <small class="text-muted">lớp học đã đăng ký</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upcoming Schedules Card -->
+            <div class="col-12 col-md-6 col-xl-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div class="avatar-lg bg-warning bg-opacity-10 rounded p-3 text-warning">
+                                <i class="fas fa-calendar-alt fa-2x"></i>
+                            </div>
+                        </div>
+                        <h6 class="text-muted fw-semibold mb-1">Lịch học sắp tới</h6>
+                        <h3 class="fw-bold mb-0" th:text="${#lists.size(upcomingSchedules)}">0</h3>
+                        <small class="text-muted">buổi học trong tuần này</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="row g-4">
+            <!-- My Enrollments -->
+            <div class="col-12 col-lg-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0 fw-bold">Lớp học của tôi</h6>
+                        <a th:href="@{/student/enrollments/history}" class="btn btn-sm btn-light">Xem tất cả</a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Lớp học</th>
+                                    <th>Khóa học</th>
+                                    <th>Ngày đăng ký</th>
+                                    <th>Trạng thái</th>
+                                    <th>Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="enrollment : ${enrollments}">
+                                    <td class="fw-medium" th:text="${enrollment.classEntity.className}"></td>
+                                    <td th:text="${enrollment.classEntity.course.name}"></td>
+                                    <td th:text="${#temporals.format(enrollment.enrollmentDate, 'dd/MM/yyyy')}"></td>
+                                    <td>
+                                        <span th:if="${enrollment.status.name() == 'PENDING'}"
+                                              class="badge bg-warning bg-opacity-10 text-warning">
+                                            <i class="fas fa-clock me-1"></i>Chờ duyệt
+                                        </span>
+                                        <span th:if="${enrollment.status.name() == 'APPROVED'}"
+                                              class="badge bg-success bg-opacity-10 text-success">
+                                            <i class="fas fa-check-circle me-1"></i>Đã phê duyệt
+                                        </span>
+                                        <span th:if="${enrollment.status.name() == 'REJECTED'}"
+                                              class="badge bg-danger bg-opacity-10 text-danger">
+                                            <i class="fas fa-times-circle me-1"></i>Từ chối
+                                        </span>
+                                        <span th:if="${enrollment.status.name() == 'COMPLETED'}"
+                                              class="badge bg-info bg-opacity-10 text-info">
+                                            <i class="fas fa-graduation-cap me-1"></i>Hoàn thành
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a th:href="@{/student/grades}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-chart-line me-1"></i>Xem điểm
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(enrollments)}">
+                                    <td colspan="5" class="text-center py-5 text-muted">
+                                        <i class="fas fa-inbox fa-3x mb-3 d-block text-secondary opacity-50"></i>
+                                        <p class="mb-2">Bạn chưa đăng ký lớp học nào</p>
+                                        <a th:href="@{/student/enrollments/browse}" class="btn btn-primary btn-sm">
+                                            <i class="fas fa-search me-1"></i>Tìm lớp học
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upcoming Schedules -->
+            <div class="col-12 col-lg-4">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0 fw-bold">Lịch học sắp tới</h6>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="list-group list-group-flush">
+                            <div class="list-group-item p-3" th:each="schedule : ${upcomingSchedules}">
+                                <div class="d-flex align-items-start">
+                                    <div class="flex-shrink-0">
+                                        <div class="avatar-sm bg-primary bg-opacity-10 rounded p-2 text-center" style="width: 50px; height: 50px">
+                                            <div class="fw-bold text-primary" th:text="${#temporals.format(schedule.scheduleDate, 'dd')}">01</div>
+                                            <small class="text-muted" style="font-size: 0.7rem" th:text="${#temporals.format(schedule.scheduleDate, 'MMM')}">Jan</small>
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <h6 class="mb-1 small fw-bold" th:text="${schedule.classEntity.className}">Class Name</h6>
+                                        <p class="mb-1 small text-muted" th:text="${schedule.classEntity.course.name}">Course Name</p>
+                                        <div class="d-flex align-items-center small text-muted">
+                                            <i class="fas fa-clock me-1"></i>
+                                            <span th:text="${schedule.startTime + ' - ' + schedule.endTime}">10:00 - 12:00</span>
+                                        </div>
+                                        <div class="d-flex align-items-center small text-muted mt-1">
+                                            <i class="fas fa-map-marker-alt me-1"></i>
+                                            <span th:text="${schedule.room}">Room</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div th:if="${#lists.isEmpty(upcomingSchedules)}" class="text-center p-4 text-muted">
+                                <i class="fas fa-calendar-times fa-2x mb-2 d-block opacity-50"></i>
+                                <p class="mb-0 small">Không có lịch học sắp tới</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="card shadow-sm mt-4">
+                    <div class="card-header bg-white py-3">
+                        <h6 class="mb-0 fw-bold">Truy cập nhanh</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <a th:href="@{/student/enrollments/browse}" class="btn btn-outline-primary">
+                                <i class="fas fa-search me-2"></i>Tìm lớp học mới
+                            </a>
+                            <a th:href="@{/student/grades}" class="btn btn-outline-success">
+                                <i class="fas fa-chart-line me-2"></i>Xem điểm số
+                            </a>
+                            <a th:href="@{/profile}" class="btn btn-outline-secondary">
+                                <i class="fas fa-user-circle me-2"></i>Hồ sơ cá nhân
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

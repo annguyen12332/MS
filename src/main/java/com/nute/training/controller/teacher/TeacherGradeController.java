@@ -108,15 +108,9 @@ public class TeacherGradeController {
             }
 
             // Tìm enrollment của học viên trong lớp này
-            // (Cần tìm enrollment trước để đảm bảo học viên có trong lớp)
-            // Có thể dùng GradeService.findGradeByStudentAndClass hoặc EnrollmentService
-            // Ở đây ta tìm Enrollment trước
-            // TODO: EnrollmentService cần method tìm theo student và class chính xác
-            // Tạm thời dùng enrollmentService.findByClass và filter
-            Optional<Enrollment> enrollmentOpt = enrollmentService.findApprovedEnrollmentsByClass(classEntity)
-                    .stream()
-                    .filter(e -> e.getStudent().getId().equals(studentId))
-                    .findFirst();
+            // (Sử dụng optimized query - direct database query thay vì filter trong Java)
+            Optional<Enrollment> enrollmentOpt = enrollmentService
+                    .findApprovedEnrollmentByStudentAndClass(studentId, classId);
 
             if (enrollmentOpt.isEmpty()) {
                  throw new RuntimeException("Học viên không thuộc lớp này hoặc chưa được duyệt");

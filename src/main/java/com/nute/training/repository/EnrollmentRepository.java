@@ -113,4 +113,17 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
            "WHERE e.status = :status " +
            "ORDER BY e.createdAt DESC")
     List<Enrollment> findByStatusWithDetails(@Param("status") Enrollment.EnrollmentStatus status);
+
+    /**
+     * Tìm enrollment đã duyệt của học viên trong lớp cụ thể
+     * (Optimized query - tránh N+1 problem)
+     */
+    @Query("SELECT e FROM Enrollment e " +
+           "WHERE e.student.id = :studentId " +
+           "AND e.classEntity.id = :classId " +
+           "AND e.status = 'APPROVED'")
+    Optional<Enrollment> findApprovedEnrollmentByStudentAndClass(
+            @Param("studentId") Long studentId,
+            @Param("classId") Long classId
+    );
 }

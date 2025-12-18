@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{student/layout :: layout(~{::title}, ~{::content}, ~{::head}, ~{::scripts})}">
+<head>
+    <title th:text="${pageTitle}">Chi tiết điểm danh</title>
+    <th:block th:fragment="head">
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    </th:block>
+</head>
+<body>
+    <div th:fragment="content">
+        <div class="container-fluid py-4">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mb-3">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a th:href="@{/student/attendance}">Lịch sử điểm danh</a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page" th:if="${classEntity != null}"
+                        th:text="${classEntity.className}">
+                        Lập trình Java
+                    </li>
+                </ol>
+            </nav>
+
+            <!-- Class Info -->
+            <div class="card border-0 shadow-sm mb-4" th:if="${classEntity != null}">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h4 class="fw-bold mb-2" th:text="${classEntity.className}">Lập trình Java cơ bản</h4>
+                            <div class="d-flex flex-wrap gap-3 text-sm">
+                                <span class="text-muted">
+                                    <i class="fas fa-tag me-1"></i>
+                                    <span th:text="${classEntity.classCode}">IT101-2024A</span>
+                                </span>
+                                <span class="text-muted">
+                                    <i class="fas fa-chalkboard-teacher me-1"></i>
+                                    <span th:text="${classEntity.teacher.fullName}">Nguyễn Văn A</span>
+                                </span>
+                                <span class="text-muted">
+                                    <i class="fas fa-calendar me-1"></i>
+                                    <span th:text="${#temporals.format(classEntity.startDate, 'dd/MM/yyyy')}">01/01/2024</span>
+                                    -
+                                    <span th:text="${#temporals.format(classEntity.endDate, 'dd/MM/yyyy')}">31/03/2024</span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                            <span class="badge bg-primary fs-6 px-3 py-2" th:text="${classEntity.status}">
+                                ONGOING
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistics -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body text-center">
+                            <div class="mb-2">
+                                <i class="fas fa-clipboard-check fa-2x text-primary"></i>
+                            </div>
+                            <h3 class="fw-bold mb-1" th:text="${attendances.size()}">24</h3>
+                            <p class="text-muted small mb-0">Tổng buổi học</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm h-100 bg-success bg-opacity-10">
+                        <div class="card-body text-center">
+                            <div class="mb-2">
+                                <i class="fas fa-check-circle fa-2x text-success"></i>
+                            </div>
+                            <h3 class="fw-bold mb-1 text-success" th:text="${presentCount}">20</h3>
+                            <p class="text-muted small mb-0">Có mặt</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm h-100 bg-danger bg-opacity-10">
+                        <div class="card-body text-center">
+                            <div class="mb-2">
+                                <i class="fas fa-times-circle fa-2x text-danger"></i>
+                            </div>
+                            <h3 class="fw-bold mb-1 text-danger" th:text="${absentCount}">4</h3>
+                            <p class="text-muted small mb-0">Vắng</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm h-100 bg-info bg-opacity-10">
+                        <div class="card-body text-center">
+                            <div class="mb-2">
+                                <i class="fas fa-percentage fa-2x text-info"></i>
+                            </div>
+                            <h3 class="fw-bold mb-1 text-info">
+                                <span th:text="${#numbers.formatDecimal(attendanceRate, 1, 1)}">83.3</span>%
+                            </h3>
+                            <p class="text-muted small mb-0">Tỷ lệ điểm danh</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Attendance Table -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="fas fa-list me-2 text-primary"></i>
+                        Chi tiết điểm danh
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive" th:if="${!attendances.isEmpty()}">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width: 80px;" class="text-center">Buổi</th>
+                                    <th>Ngày học</th>
+                                    <th>Thời gian</th>
+                                    <th>Chủ đề</th>
+                                    <th style="width: 150px;" class="text-center">Trạng thái</th>
+                                    <th>Ghi chú</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="attendance : ${attendances}">
+                                    <td class="text-center fw-bold">
+                                        <span class="badge bg-secondary"
+                                              th:text="'#' + ${attendance.schedule.sessionNumber}">
+                                            #1
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <i class="fas fa-calendar me-2 text-muted"></i>
+                                        <span th:text="${#temporals.format(attendance.schedule.sessionDate, 'dd/MM/yyyy (EEEE)')}">
+                                            01/01/2024
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <i class="fas fa-clock me-2 text-muted"></i>
+                                        <span th:text="${#temporals.format(attendance.schedule.startTime, 'HH:mm')}">08:00</span>
+                                        -
+                                        <span th:text="${#temporals.format(attendance.schedule.endTime, 'HH:mm')}">10:00</span>
+                                    </td>
+                                    <td>
+                                        <span th:text="${attendance.schedule.topic} ?: '-'"
+                                              class="text-truncate d-inline-block" style="max-width: 200px;">
+                                            Giới thiệu Java
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span th:if="${attendance.status == T(com.nute.training.entity.Attendance.AttendanceStatus).PRESENT}"
+                                              class="badge bg-success">
+                                            <i class="fas fa-check-circle me-1"></i>Có mặt
+                                        </span>
+                                        <span th:if="${attendance.status == T(com.nute.training.entity.Attendance.AttendanceStatus).ABSENT}"
+                                              class="badge bg-danger">
+                                            <i class="fas fa-times-circle me-1"></i>Vắng
+                                        </span>
+                                        <span th:if="${attendance.status == T(com.nute.training.entity.Attendance.AttendanceStatus).LATE}"
+                                              class="badge bg-warning">
+                                            <i class="fas fa-clock me-1"></i>Đi muộn
+                                        </span>
+                                        <span th:if="${attendance.status == T(com.nute.training.entity.Attendance.AttendanceStatus).EXCUSED}"
+                                              class="badge bg-info">
+                                            <i class="fas fa-file-medical me-1"></i>Có phép
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span th:text="${attendance.note} ?: '-'" class="text-muted small">
+                                            -
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div th:if="${attendances.isEmpty()}" class="text-center py-5">
+                        <div class="mb-4">
+                            <i class="fas fa-clipboard-list fa-4x text-muted opacity-50"></i>
+                        </div>
+                        <h5 class="text-muted">Chưa có dữ liệu điểm danh</h5>
+                        <p class="text-muted">Giảng viên chưa điểm danh cho lớp này</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <th:block th:fragment="scripts">
+        <!-- Custom scripts -->
+    </th:block>
+</body>
+</html>

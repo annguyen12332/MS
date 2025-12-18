@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="sidebar" class="sidebar">
+    <!-- Logo -->
+    <div class="sidebar-header">
+        <div class="d-flex align-items-center">
+            <i class="fas fa-graduation-cap fa-2x text-white me-2"></i>
+            <div>
+                <h5 class="mb-0 text-white fw-bold">NUTE</h5>
+                <small class="text-white-50">Teacher Portal</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <ul class="sidebar-nav">
+        <li class="nav-item">
+            <a th:href="@{/teacher/dashboard}"
+               th:classappend="${#strings.contains(requestURI, '/teacher/dashboard')} ? 'active' : ''"
+               class="nav-link">
+                <i class="fas fa-chart-line"></i>
+                <span>Dashboard</span>
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a th:href="@{/teacher/classes}"
+               th:classappend="${#strings.contains(requestURI, '/teacher/classes')} ? 'active' : ''"
+               class="nav-link">
+                <i class="fas fa-users-class"></i>
+                <span>Lớp học của tôi</span>
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a th:href="@{/teacher/schedules}"
+               th:classappend="${#strings.contains(requestURI, '/teacher/schedules')} ? 'active' : ''"
+               class="nav-link">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Lịch giảng dạy</span>
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a th:href="@{/teacher/attendance}"
+               th:classappend="${#strings.contains(requestURI, '/teacher/attendance')} ? 'active' : ''"
+               class="nav-link">
+                <i class="fas fa-clipboard-check"></i>
+                <span>Điểm danh</span>
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a th:href="@{/teacher/grades}"
+               th:classappend="${#strings.contains(requestURI, '/teacher/grades')} ? 'active' : ''"
+               class="nav-link">
+                <i class="fas fa-star"></i>
+                <span>Nhập điểm</span>
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a th:href="@{/teacher/students}"
+               th:classappend="${#strings.contains(requestURI, '/teacher/students')} ? 'active' : ''"
+               class="nav-link">
+                <i class="fas fa-user-graduate"></i>
+                <span>Học viên</span>
+            </a>
+        </li>
+
+        <!-- Divider -->
+        <li class="nav-divider"></li>
+
+        <li class="nav-item">
+            <a href="/profile" class="nav-link">
+                <i class="fas fa-user-circle"></i>
+                <span>Hồ sơ cá nhân</span>
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <form th:action="@{/logout}" method="post" class="m-0">
+                <button type="submit" class="nav-link text-danger border-0 bg-transparent w-100 text-start">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Đăng xuất</span>
+                </button>
+            </form>
+        </li>
+    </ul>
+</div>
+</body>
+</html>

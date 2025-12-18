@@ -3,7 +3,11 @@
     "allow": [
       "Bash(copy:*)",
       "Bash(python update_layouts.py:*)",
-      "Bash(./mvnw clean compile:*)"
+      "Bash(./mvnw clean compile:*)",
+      "Bash(cat:*)",
+      "Bash(mkdir:*)",
+      "Bash(./mvnw compile:*)",
+      "Bash(./mvnw clean:*)"
     ],
     "deny": [],
     "ask": []

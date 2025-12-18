@@ -1,8 +1,12 @@
 package com.nute.training.controller.teacher;
 
 import com.nute.training.entity.Attendance;
+import com.nute.training.entity.ClassEntity;
 import com.nute.training.entity.Schedule;
 import com.nute.training.entity.User;
+import com.nute.training.exception.BusinessException;
+import com.nute.training.exception.ResourceNotFoundException;
+import com.nute.training.exception.UnauthorizedException;
 import com.nute.training.service.AttendanceService;
 import com.nute.training.service.ClassService;
 import com.nute.training.service.EnrollmentService;
@@ -39,10 +43,11 @@ public class TeacherAttendanceController {
     @GetMapping
     public String myClasses(Model model) {
         User currentTeacher = authenticationHelper.getCurrentUser()
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UnauthorizedException());
 
         var ongoingClasses = classService.findOngoingClassesByTeacher(currentTeacher);
         model.addAttribute("classes", ongoingClasses);
+        model.addAttribute("pageTitle", "Điểm danh - Lớp học của tôi");
         return "teacher/attendance/classes";
     }
 
@@ -50,68 +55,56 @@ public class TeacherAttendanceController {
      * Danh sách lịch học của lớp
      */
     @GetMapping("/class/{classId}/schedules")
-    public String classSchedules(@PathVariable Long classId, Model model,
-                                 RedirectAttributes redirectAttributes) {
-        try {
-            User currentTeacher = authenticationHelper.getCurrentUser()
-                    .orElseThrow(() -> new RuntimeException("User not found"));
+    public String classSchedules(@PathVariable Long classId, Model model) {
+        User currentTeacher = authenticationHelper.getCurrentUser()
+                .orElseThrow(() -> new UnauthorizedException());
 
-            var classEntity = classService.findById(classId)
-                    .orElseThrow(() -> new RuntimeException("Không tìm thấy lớp học"));
+        ClassEntity classEntity = classService.findById(classId)
+                .orElseThrow(() -> new ResourceNotFoundException("Lớp học", classId));
 
-            // Verify teacher owns this class
-            if (classEntity.getTeacher() == null ||
-                !classEntity.getTeacher().getId().equals(currentTeacher.getId())) {
-                throw new RuntimeException("Bạn không phải giảng viên của lớp này");
-            }
-
-            var schedules = scheduleService.findByClass(classEntity);
-            model.addAttribute("classEntity", classEntity);
-            model.addAttribute("schedules", schedules);
-            return "teacher/attendance/schedules";
-        } catch (Exception e) {
-            log.error("Error loading schedules", e);
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/teacher/attendance";
+        // Verify teacher owns this class
+        if (classEntity.getTeacher() == null ||
+            !classEntity.getTeacher().getId().equals(currentTeacher.getId())) {
+            throw new BusinessException("Bạn không phải giảng viên của lớp này");
         }
+
+        var schedules = scheduleService.findByClass(classEntity);
+        model.addAttribute("classEntity", classEntity);
+        model.addAttribute("schedules", schedules);
+        model.addAttribute("pageTitle", "Lịch học - " + classEntity.getClassName());
+        return "teacher/attendance/schedules";
     }
 
     /**
      * Form điểm danh cho buổi học
      */
     @GetMapping("/schedule/{scheduleId}")
-    public String attendanceForm(@PathVariable Long scheduleId, Model model,
-                                 RedirectAttributes redirectAttributes) {
-        try {
-            User currentTeacher = authenticationHelper.getCurrentUser()
-                    .orElseThrow(() -> new RuntimeException("User not found"));
+    public String attendanceForm(@PathVariable Long scheduleId, Model model) {
+        User currentTeacher = authenticationHelper.getCurrentUser()
+                .orElseThrow(() -> new UnauthorizedException());
 
-            Schedule schedule = scheduleService.findById(scheduleId)
-                    .orElseThrow(() -> new RuntimeException("Không tìm thấy lịch học"));
+        Schedule schedule = scheduleService.findById(scheduleId)
+                .orElseThrow(() -> new ResourceNotFoundException("Lịch học", scheduleId));
 
-            // Verify teacher owns this class
-            if (schedule.getClassEntity().getTeacher() == null ||
-                !schedule.getClassEntity().getTeacher().getId().equals(currentTeacher.getId())) {
-                throw new RuntimeException("Bạn không phải giảng viên của lớp này");
-            }
-
-            // Get approved enrollments
-            var approvedEnrollments = enrollmentService
-                    .findApprovedEnrollmentsByClass(schedule.getClassEntity());
-
-            // Get existing attendances
-            var existingAttendances = attendanceService.findBySchedule(schedule);
-
-            model.addAttribute("schedule", schedule);
-            model.addAttribute("enrollments", approvedEnrollments);
-            model.addAttribute("existingAttendances", existingAttendances);
-            model.addAttribute("attendanceStatuses", Attendance.AttendanceStatus.values());
-            return "teacher/attendance/form";
-        } catch (Exception e) {
-            log.error("Error loading attendance form", e);
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/teacher/attendance";
+        // Verify teacher owns this class
+        if (schedule.getClassEntity().getTeacher() == null ||
+            !schedule.getClassEntity().getTeacher().getId().equals(currentTeacher.getId())) {
+            throw new BusinessException("Bạn không phải giảng viên của lớp này");
         }
+
+        // Get approved enrollments
+        var approvedEnrollments = enrollmentService
+                .findApprovedEnrollmentsByClass(schedule.getClassEntity());
+
+        // Get existing attendances
+        var existingAttendances = attendanceService.findBySchedule(schedule);
+
+        model.addAttribute("schedule", schedule);
+        model.addAttribute("enrollments", approvedEnrollments);
+        model.addAttribute("existingAttendances", existingAttendances);
+        model.addAttribute("attendanceStatuses", Attendance.AttendanceStatus.values());
+        model.addAttribute("pageTitle", "Điểm danh - Buổi " + schedule.getSessionNumber());
+        return "teacher/attendance/form";
     }
 
     /**
@@ -123,23 +116,20 @@ public class TeacherAttendanceController {
                                 @RequestParam Attendance.AttendanceStatus status,
                                 @RequestParam(required = false) String note,
                                 RedirectAttributes redirectAttributes) {
+        User currentTeacher = authenticationHelper.getCurrentUser()
+                .orElseThrow(() -> new UnauthorizedException());
+
+        Schedule schedule = scheduleService.findById(scheduleId)
+                .orElseThrow(() -> new ResourceNotFoundException("Lịch học", scheduleId));
+
+        var student = new User();
+        student.setId(studentId);
+
         try {
-            User currentTeacher = authenticationHelper.getCurrentUser()
-                    .orElseThrow(() -> new RuntimeException("User not found"));
-
-            Schedule schedule = scheduleService.findById(scheduleId)
-                    .orElseThrow(() -> new RuntimeException("Không tìm thấy lịch học"));
-
-            var student = new User();
-            student.setId(studentId);
-
             attendanceService.markAttendance(schedule, student, status, currentTeacher, note);
-
             redirectAttributes.addFlashAttribute("success", "Điểm danh thành công");
-        } catch (Exception e) {
-            log.error("Error marking attendance", e);
-            redirectAttributes.addFlashAttribute("error",
-                    "Lỗi khi điểm danh: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            throw new BusinessException(e.getMessage());
         }
         return "redirect:/teacher/attendance/schedule/" + scheduleId;
     }

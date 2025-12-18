@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{teacher/layout :: layout(~{::title}, ~{::content}, ~{::head}, ~{::scripts})}">
+<head>
+    <title th:text="${pageTitle}">Lịch học</title>
+    <th:block th:fragment="head">
+        <!-- Custom CSS for schedules -->
+    </th:block>
+</head>
+<body>
+    <div th:fragment="content">
+        <div class="container-fluid py-4">
+            <!-- Alert Messages -->
+            <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i>
+                <span th:text="${success}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <span th:text="${error}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mb-3">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a th:href="@{/teacher/attendance}">
+                            <i class="fas fa-clipboard-check me-1"></i>Điểm danh
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page" th:text="${classEntity.className}">
+                        Lập trình Java
+                    </li>
+                </ol>
+            </nav>
+
+            <!-- Class Info Card -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h4 class="fw-bold mb-2" th:text="${classEntity.className}">Lập trình Java cơ bản</h4>
+                            <div class="d-flex flex-wrap gap-3 text-sm">
+                                <span class="text-muted">
+                                    <i class="fas fa-tag me-1"></i>
+                                    <span th:text="${classEntity.classCode}">IT101-2024A</span>
+                                </span>
+                                <span class="text-muted">
+                                    <i class="fas fa-users me-1"></i>
+                                    <span th:text="${classEntity.currentStudents}">25</span> /
+                                    <span th:text="${classEntity.maxStudents}">30</span> học viên
+                                </span>
+                                <span class="text-muted">
+                                    <i class="fas fa-calendar me-1"></i>
+                                    <span th:text="${#temporals.format(classEntity.startDate, 'dd/MM/yyyy')}">01/01/2024</span>
+                                    -
+                                    <span th:text="${#temporals.format(classEntity.endDate, 'dd/MM/yyyy')}">31/03/2024</span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                            <span class="badge bg-primary fs-6 px-3 py-2" th:text="${classEntity.status}">
+                                ONGOING
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Schedules Table -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="fas fa-calendar-alt me-2 text-primary"></i>
+                        Danh sách lịch học
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive" th:if="${!schedules.isEmpty()}">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="text-center" style="width: 80px;">Buổi</th>
+                                    <th>Ngày học</th>
+                                    <th>Thời gian</th>
+                                    <th>Phòng</th>
+                                    <th>Chủ đề</th>
+                                    <th class="text-center" style="width: 120px;">Trạng thái</th>
+                                    <th class="text-center" style="width: 180px;">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="schedule : ${schedules}">
+                                    <td class="text-center fw-bold">
+                                        <span class="badge bg-secondary" th:text="'#' + ${schedule.sessionNumber}">
+                                            #1
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <i class="fas fa-calendar me-2 text-muted"></i>
+                                        <span th:text="${#temporals.format(schedule.sessionDate, 'dd/MM/yyyy (EEEE)')}">
+                                            01/01/2024 (Monday)
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <i class="fas fa-clock me-2 text-muted"></i>
+                                        <span th:text="${#temporals.format(schedule.startTime, 'HH:mm')}">08:00</span>
+                                        -
+                                        <span th:text="${#temporals.format(schedule.endTime, 'HH:mm')}">10:00</span>
+                                    </td>
+                                    <td>
+                                        <i class="fas fa-door-open me-2 text-muted"></i>
+                                        <span th:text="${schedule.room} ?: 'Chưa xác định'">Phòng A101</span>
+                                    </td>
+                                    <td>
+                                        <span th:text="${schedule.topic} ?: '-'" class="text-truncate d-inline-block"
+                                              style="max-width: 200px;">
+                                            Giới thiệu về Java
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span th:if="${schedule.status == T(com.nute.training.entity.Schedule.ScheduleStatus).SCHEDULED}"
+                                              class="badge bg-info">
+                                            Đã lên lịch
+                                        </span>
+                                        <span th:if="${schedule.status == T(com.nute.training.entity.Schedule.ScheduleStatus).COMPLETED}"
+                                              class="badge bg-success">
+                                            Hoàn thành
+                                        </span>
+                                        <span th:if="${schedule.status == T(com.nute.training.entity.Schedule.ScheduleStatus).CANCELLED}"
+                                              class="badge bg-danger">
+                                            Đã hủy
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <a th:href="@{/teacher/attendance/schedule/{id}(id=${schedule.id})}"
+                                           class="btn btn-sm btn-primary"
+                                           th:if="${schedule.status != T(com.nute.training.entity.Schedule.ScheduleStatus).CANCELLED}">
+                                            <i class="fas fa-clipboard-check me-1"></i>
+                                            Điểm danh
+                                        </a>
+                                        <span th:if="${schedule.status == T(com.nute.training.entity.Schedule.ScheduleStatus).CANCELLED}"
+                                              class="text-muted small">
+                                            Đã hủy
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div th:if="${schedules.isEmpty()}" class="text-center py-5">
+                        <div class="mb-4">
+                            <i class="fas fa-calendar-times fa-4x text-muted opacity-50"></i>
+                        </div>
+                        <h5 class="text-muted">Chưa có lịch học nào</h5>
+                        <p class="text-muted">Lịch học cho lớp này chưa được tạo</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <th:block th:fragment="scripts">
+        <script>
+            setTimeout(function() {
+                $('.alert').fadeOut('slow');
+            }, 5000);
+        </script>
+    </th:block>
+</body>
+</html>

@@ -3,6 +3,9 @@ package com.nute.training.controller.student;
 import com.nute.training.entity.ClassEntity;
 import com.nute.training.entity.Course;
 import com.nute.training.entity.User;
+import com.nute.training.exception.BusinessException;
+import com.nute.training.exception.ResourceNotFoundException;
+import com.nute.training.exception.UnauthorizedException;
 import com.nute.training.service.ClassService;
 import com.nute.training.service.CourseService;
 import com.nute.training.service.EnrollmentService;
@@ -13,6 +16,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.util.List;
 
 /**
  * Controller: StudentEnrollmentController
@@ -35,18 +40,31 @@ public class StudentEnrollmentController {
     @GetMapping("/browse")
     public String browseClasses(@RequestParam(required = false) Long courseId, Model model) {
         // Lấy danh sách khóa học để filter
-        model.addAttribute("courses", courseService.findActiveCourses());
+        var courses = courseService.findActiveCourses();
+        log.info("Found {} active courses", courses.size());
+        model.addAttribute("courses", courses);
+        model.addAttribute("pageTitle", "Tìm lớp học");
 
+        List<ClassEntity> classes;
         if (courseId != null) {
-            // Tìm lớp theo khóa học (TODO: ClassService cần method findOpenClassesByCourse)
-            // Tạm thời lấy tất cả active classes rồi filter ở view hoặc service
-             model.addAttribute("classes", classService.findByStatus(ClassEntity.ClassStatus.PENDING));
-             model.addAttribute("selectedCourseId", courseId);
+            // Tìm lớp theo khóa học
+            Course course = courseService.findById(courseId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Khóa học", courseId));
+            classes = classService.findOpenClassesByCourse(course);
+            log.info("Found {} classes for course ID: {}", classes.size(), courseId);
+            model.addAttribute("selectedCourseId", courseId);
         } else {
-             // Mặc định hiển thị các lớp đang tuyển sinh (PENDING)
-             model.addAttribute("classes", classService.findByStatus(ClassEntity.ClassStatus.PENDING));
+            // Mặc định hiển thị các lớp đang tuyển sinh (PENDING và ONGOING)
+            classes = classService.findAvailableClasses();
+            log.info("Found {} available classes (PENDING or ONGOING with seats)", classes.size());
         }
-        
+
+        model.addAttribute("classes", classes);
+
+        // Debug log chi tiết
+        classes.forEach(c -> log.debug("Class: {} - Status: {} - Students: {}/{}",
+            c.getClassName(), c.getStatus(), c.getCurrentStudents(), c.getMaxStudents()));
+
         return "student/enrollments/browse";
     }
 
@@ -57,21 +75,19 @@ public class StudentEnrollmentController {
     public String register(@RequestParam Long classId,
                            @RequestParam(required = false) String notes,
                            RedirectAttributes redirectAttributes) {
+        User currentStudent = authenticationHelper.getCurrentUser()
+                .orElseThrow(() -> new UnauthorizedException());
+
+        ClassEntity classEntity = classService.findById(classId)
+                .orElseThrow(() -> new ResourceNotFoundException("Lớp học", classId));
+
         try {
-            User currentStudent = authenticationHelper.getCurrentUser()
-                    .orElseThrow(() -> new RuntimeException("User not found"));
-
-            ClassEntity classEntity = classService.findById(classId)
-                    .orElseThrow(() -> new RuntimeException("Không tìm thấy lớp học"));
-
             enrollmentService.createEnrollment(currentStudent, classEntity, notes);
-
             redirectAttributes.addFlashAttribute("success", "Đăng ký thành công! Vui lòng chờ duyệt.");
             return "redirect:/student/dashboard";
-        } catch (Exception e) {
-            log.error("Error registering class", e);
-            redirectAttributes.addFlashAttribute("error", "Lỗi đăng ký: " + e.getMessage());
-            return "redirect:/student/enrollments/browse";
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            // Business logic errors (lớp đầy, đã đăng ký, v.v.)
+            throw new BusinessException(e.getMessage());
         }
     }
 
@@ -80,14 +96,11 @@ public class StudentEnrollmentController {
      */
     @GetMapping("/history")
     public String history(Model model) {
-        try {
-             User currentStudent = authenticationHelper.getCurrentUser()
-                    .orElseThrow(() -> new RuntimeException("User not found"));
-            
-            model.addAttribute("enrollments", enrollmentService.findByStudent(currentStudent));
-            return "student/enrollments/history";
-        } catch (Exception e) {
-             return "redirect:/login";
-        }
+        User currentStudent = authenticationHelper.getCurrentUser()
+                .orElseThrow(() -> new UnauthorizedException());
+
+        model.addAttribute("enrollments", enrollmentService.findByStudent(currentStudent));
+        model.addAttribute("pageTitle", "Lớp học của tôi");
+        return "student/enrollments/history";
     }
 }

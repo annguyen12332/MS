@@ -91,8 +91,20 @@ public interface ClassRepository extends JpaRepository<ClassEntity, Long> {
 
     /**
      * Tìm lớp chưa đầy (còn chỗ)
+     * Cho phép đăng ký lớp PENDING (chưa bắt đầu) và ONGOING (đang diễn ra)
      */
     @Query("SELECT c FROM ClassEntity c WHERE " +
-           "c.status = 'PENDING' AND c.currentStudents < c.maxStudents")
+           "(c.status = 'PENDING' OR c.status = 'ONGOING') AND c.currentStudents < c.maxStudents " +
+           "ORDER BY c.startDate ASC")
     List<ClassEntity> findAvailableClasses();
+
+    /**
+     * Tìm lớp đang mở đăng ký theo khóa học
+     * Cho phép đăng ký lớp PENDING (chưa bắt đầu) và ONGOING (đang diễn ra)
+     */
+    @Query("SELECT c FROM ClassEntity c WHERE " +
+           "c.course = :course AND (c.status = 'PENDING' OR c.status = 'ONGOING') " +
+           "AND c.currentStudents < c.maxStudents " +
+           "ORDER BY c.startDate ASC")
+    List<ClassEntity> findOpenClassesByCourse(@Param("course") Course course);
 }

@@ -47,6 +47,7 @@ public class StudentDashboardController {
             model.addAttribute("activeCoursesCount", activeCourses);
             model.addAttribute("studentName", currentStudent.getFullName());
             model.addAttribute("upcomingSchedules", upcomingSchedules);
+            model.addAttribute("pageTitle", "Trang chủ");
 
             return "student/dashboard";
         } catch (Exception e) {

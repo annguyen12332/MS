@@ -34,7 +34,8 @@ public class StudentGradeController {
 
             List<Grade> grades = gradeService.findGradesByStudent(currentStudent.getId());
             model.addAttribute("grades", grades);
-            
+            model.addAttribute("pageTitle", "Điểm số");
+
             return "student/grades/list";
         } catch (Exception e) {
             log.error("Error loading student grades", e);

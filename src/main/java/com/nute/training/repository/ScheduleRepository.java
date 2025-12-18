@@ -123,6 +123,19 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
     );
 
     /**
+     * Tìm lịch của học viên theo khoảng thời gian
+     */
+    @Query("SELECT s FROM Schedule s JOIN s.classEntity c JOIN c.enrollments e WHERE " +
+           "e.student.id = :studentId AND e.status = 'APPROVED' AND " +
+           "s.sessionDate BETWEEN :startDate AND :endDate " +
+           "ORDER BY s.sessionDate, s.startTime")
+    List<Schedule> findStudentScheduleByDateRange(
+            @Param("studentId") Long studentId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate
+    );
+
+    /**
      * Đếm số buổi đã hoàn thành của lớp
      */
     @Query("SELECT COUNT(s) FROM Schedule s WHERE " +

@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
@@ -23,6 +24,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@SQLRestriction("deleted = false")
 public class Grade {
 
     @Id
@@ -77,6 +79,16 @@ public class Grade {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @Column(name = "deleted")
+    private Boolean deleted = false;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "deleted_by")
+    private User deletedBy;
 
     /**
      * Business Rule: Tính điểm tổng kết
@@ -135,5 +147,14 @@ public class Grade {
         calculateTotalScore();
         calculateGradeLetter();
         calculatePass();
+    }
+
+    /**
+     * Soft delete helper method
+     */
+    public void markAsDeleted(User deletedByUser) {
+        this.deleted = true;
+        this.deletedAt = LocalDateTime.now();
+        this.deletedBy = deletedByUser;
     }
 }

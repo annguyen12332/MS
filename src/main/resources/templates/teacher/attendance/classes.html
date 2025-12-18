@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{teacher/layout :: layout(~{::title}, ~{::content}, ~{::head}, ~{::scripts})}">
+<head>
+    <title th:text="${pageTitle}">Điểm danh - Lớp học</title>
+    <th:block th:fragment="head">
+        <!-- Custom CSS for attendance -->
+    </th:block>
+</head>
+<body>
+    <div th:fragment="content">
+        <div class="container-fluid py-4">
+            <!-- Alert Messages -->
+            <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i>
+                <span th:text="${success}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <span th:text="${error}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h4 class="mb-1 fw-bold">
+                        <i class="fas fa-clipboard-check text-primary me-2"></i>
+                        Điểm danh học viên
+                    </h4>
+                    <p class="text-muted small mb-0">Chọn lớp học để xem lịch học và điểm danh</p>
+                </div>
+            </div>
+
+            <!-- Classes Grid -->
+            <div class="row g-4" th:if="${!classes.isEmpty()}">
+                <div class="col-md-6 col-xl-4" th:each="class : ${classes}">
+                    <div class="card h-100 border-0 shadow-sm hover-shadow-lg transition">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div>
+                                    <h5 class="card-title fw-bold mb-1" th:text="${class.className}">
+                                        Lập trình Java cơ bản
+                                    </h5>
+                                    <p class="text-muted small mb-2">
+                                        <i class="fas fa-tag me-1"></i>
+                                        <span th:text="${class.classCode}">IT101-2024A</span>
+                                    </p>
+                                </div>
+                                <span class="badge bg-primary" th:text="${class.status}">ONGOING</span>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between text-sm mb-2">
+                                    <span class="text-muted">
+                                        <i class="fas fa-book me-1"></i> Khóa học:
+                                    </span>
+                                    <span class="fw-medium" th:text="${class.course.courseName}">
+                                        Lập trình Java
+                                    </span>
+                                </div>
+                                <div class="d-flex justify-content-between text-sm mb-2">
+                                    <span class="text-muted">
+                                        <i class="fas fa-users me-1"></i> Học viên:
+                                    </span>
+                                    <span class="fw-medium">
+                                        <span th:text="${class.currentStudents}">25</span> /
+                                        <span th:text="${class.maxStudents}">30</span>
+                                    </span>
+                                </div>
+                                <div class="d-flex justify-content-between text-sm">
+                                    <span class="text-muted">
+                                        <i class="fas fa-calendar me-1"></i> Thời gian:
+                                    </span>
+                                    <span class="fw-medium">
+                                        <span th:text="${#temporals.format(class.startDate, 'dd/MM/yyyy')}">01/01/2024</span>
+                                        -
+                                        <span th:text="${#temporals.format(class.endDate, 'dd/MM/yyyy')}">31/03/2024</span>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <a th:href="@{/teacher/attendance/class/{id}/schedules(id=${class.id})}"
+                                   class="btn btn-primary btn-sm">
+                                    <i class="fas fa-clipboard-check me-2"></i>
+                                    Xem lịch học & Điểm danh
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div th:if="${classes.isEmpty()}" class="text-center py-5">
+                <div class="mb-4">
+                    <i class="fas fa-chalkboard-teacher fa-4x text-muted opacity-50"></i>
+                </div>
+                <h5 class="text-muted">Chưa có lớp học nào đang diễn ra</h5>
+                <p class="text-muted">Bạn chưa được phân công dạy lớp học nào hoặc các lớp đã kết thúc</p>
+            </div>
+        </div>
+    </div>
+
+    <th:block th:fragment="scripts">
+        <script>
+            // Auto dismiss alerts after 5 seconds
+            setTimeout(function() {
+                $('.alert').fadeOut('slow');
+            }, 5000);
+        </script>
+    </th:block>
+</body>
+</html>

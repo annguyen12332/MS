@@ -67,6 +67,22 @@ public class ScheduleService {
     }
 
     /**
+     * Tìm lịch của giảng viên theo khoảng thời gian
+     */
+    @Transactional(readOnly = true)
+    public List<Schedule> findTeacherScheduleByDateRange(User teacher, LocalDate startDate, LocalDate endDate) {
+        return scheduleRepository.findTeacherScheduleByDateRange(teacher.getId(), startDate, endDate);
+    }
+
+    /**
+     * Tìm lịch của học viên theo khoảng thời gian
+     */
+    @Transactional(readOnly = true)
+    public List<Schedule> findStudentScheduleByDateRange(User student, LocalDate startDate, LocalDate endDate) {
+        return scheduleRepository.findStudentScheduleByDateRange(student.getId(), startDate, endDate);
+    }
+
+    /**
      * Tìm lịch sắp tới của lớp
      */
     @Transactional(readOnly = true)

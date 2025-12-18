@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Dashboard - Giảng viên</title>
+</head>
+<body>
+<th:block th:replace="~{teacher/layout :: layout(
+    ~{::title},
+    ~{::main},
+    ~{::head-extra},
+    ~{::scripts-extra}
+)}">
+    <th:block th:fragment="head-extra">
+        <style>
+            .stat-card {
+                border-radius: 12px;
+                transition: transform 0.2s, box-shadow 0.2s;
+            }
+            .stat-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            }
+            .stat-icon {
+                width: 60px;
+                height: 60px;
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 24px;
+            }
+            .schedule-item {
+                border-left: 4px solid #4361ee;
+                padding-left: 15px;
+                transition: all 0.2s;
+            }
+            .schedule-item:hover {
+                background-color: #f8f9fa;
+                padding-left: 20px;
+            }
+        </style>
+    </th:block>
+
+    <main>
+        <div class="container-fluid">
+            <!-- Welcome Section -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card border-0 shadow-sm bg-gradient" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        <div class="card-body py-4">
+                            <h3 class="text-white mb-2">
+                                <i class="fas fa-sun me-2"></i>Xin chào, <span th:text="${teacherName}">Giảng viên</span>!
+                            </h3>
+                            <p class="text-white-50 mb-0">Chào mừng bạn đến với hệ thống quản lý giảng dạy</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-3">
+                    <div class="card stat-card border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="text-muted mb-1 small">Lớp đang dạy</p>
+                                    <h3 class="mb-0 fw-bold" th:text="${activeClassesCount}">0</h3>
+                                </div>
+                                <div class="stat-icon bg-primary bg-opacity-10 text-primary">
+                                    <i class="fas fa-chalkboard"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card stat-card border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="text-muted mb-1 small">Tổng học viên</p>
+                                    <h3 class="mb-0 fw-bold" th:text="${totalStudentsCount}">0</h3>
+                                </div>
+                                <div class="stat-icon bg-success bg-opacity-10 text-success">
+                                    <i class="fas fa-user-graduate"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card stat-card border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="text-muted mb-1 small">Buổi học tuần này</p>
+                                    <h3 class="mb-0 fw-bold" th:text="${weeklySessionsCount}">0</h3>
+                                </div>
+                                <div class="stat-icon bg-info bg-opacity-10 text-info">
+                                    <i class="fas fa-calendar-week"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card stat-card border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="text-muted mb-1 small">Điểm chưa nhập</p>
+                                    <h3 class="mb-0 fw-bold" th:text="${pendingGradesCount}">0</h3>
+                                </div>
+                                <div class="stat-icon bg-warning bg-opacity-10 text-warning">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content Row -->
+            <div class="row g-4">
+                <!-- Upcoming Schedules -->
+                <div class="col-lg-8">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white border-0 pt-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0 fw-bold">
+                                    <i class="fas fa-clock text-primary me-2"></i>Lịch giảng dạy sắp tới
+                                </h5>
+                                <a th:href="@{/teacher/schedules}" class="btn btn-sm btn-outline-primary">
+                                    Xem tất cả <i class="fas fa-arrow-right ms-1"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div th:if="${#lists.isEmpty(upcomingSchedules)}" class="text-center py-5 text-muted">
+                                <i class="fas fa-calendar-times fa-3x mb-3 opacity-50"></i>
+                                <p>Không có lịch giảng dạy sắp tới</p>
+                            </div>
+
+                            <div th:unless="${#lists.isEmpty(upcomingSchedules)}">
+                                <div th:each="schedule, iter : ${upcomingSchedules}" class="schedule-item mb-3 pb-3"
+                                     th:classappend="${!iter.last} ? 'border-bottom' : ''">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-2 text-center">
+                                            <div class="badge bg-primary p-2">
+                                                <div class="fs-4" th:text="${#temporals.format(schedule.sessionDate, 'dd')}">15</div>
+                                                <div class="small" th:text="${#temporals.format(schedule.sessionDate, 'MMM')}">Dec</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h6 class="mb-1 fw-bold" th:text="${schedule.classEntity.className}">Tên lớp</h6>
+                                            <p class="text-muted small mb-1" th:text="${schedule.topic}">Chủ đề buổi học</p>
+                                            <span class="badge bg-light text-dark">
+                                                <i class="fas fa-door-open me-1"></i>
+                                                <span th:text="${schedule.room}">Phòng</span>
+                                            </span>
+                                        </div>
+                                        <div class="col-md-4 text-end">
+                                            <div class="text-muted small mb-1">
+                                                <i class="fas fa-clock me-1"></i>
+                                                <span th:text="${#temporals.format(schedule.startTime, 'HH:mm')}">09:00</span>
+                                                -
+                                                <span th:text="${#temporals.format(schedule.endTime, 'HH:mm')}">11:00</span>
+                                            </div>
+                                            <a th:href="@{/teacher/attendance/schedule/{id}(id=${schedule.id})}"
+                                               class="btn btn-sm btn-primary">
+                                                <i class="fas fa-clipboard-check me-1"></i>Điểm danh
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- My Classes -->
+                <div class="col-lg-4">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white border-0 pt-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0 fw-bold">
+                                    <i class="fas fa-chalkboard-teacher text-success me-2"></i>Lớp học
+                                </h5>
+                                <a th:href="@{/teacher/classes}" class="btn btn-sm btn-outline-success">
+                                    Xem tất cả
+                                </a>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div th:if="${#lists.isEmpty(myClasses)}" class="text-center py-5 text-muted">
+                                <i class="fas fa-book-open fa-3x mb-3 opacity-50"></i>
+                                <p>Chưa có lớp học nào</p>
+                            </div>
+
+                            <div th:unless="${#lists.isEmpty(myClasses)}">
+                                <div th:each="classItem, iter : ${myClasses}" class="mb-3 pb-3"
+                                     th:classappend="${!iter.last} ? 'border-bottom' : ''">
+                                    <div class="d-flex align-items-start">
+                                        <div class="flex-shrink-0 me-3">
+                                            <div class="bg-success bg-opacity-10 text-success rounded p-2">
+                                                <i class="fas fa-book"></i>
+                                            </div>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-1">
+                                                <a th:href="@{/teacher/classes/{id}(id=${classItem.id})}"
+                                                   class="text-decoration-none text-dark"
+                                                   th:text="${classItem.className}">
+                                                    Tên lớp
+                                                </a>
+                                            </h6>
+                                            <p class="text-muted small mb-1" th:text="${classItem.course.name}">Tên khóa học</p>
+                                            <div class="d-flex align-items-center">
+                                                <span class="badge bg-light text-dark me-2">
+                                                    <i class="fas fa-users me-1"></i>
+                                                    <span th:text="${classItem.currentStudents} + '/' + ${classItem.maxStudents}">0/30</span>
+                                                </span>
+                                                <span class="badge"
+                                                      th:classappend="${classItem.status.name() == 'ONGOING' ? 'bg-success' : (classItem.status.name() == 'PENDING' ? 'bg-warning' : 'bg-secondary')}"
+                                                      th:text="${classItem.status.name() == 'ONGOING' ? 'Đang diễn ra' : (classItem.status.name() == 'PENDING' ? 'Chờ bắt đầu' : (classItem.status.name() == 'COMPLETED' ? 'Đã kết thúc' : 'Đã hủy'))}">
+                                                    Trạng thái
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="row g-4 mt-2">
+                <div class="col-12">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white border-0 pt-3">
+                            <h5 class="mb-0 fw-bold">
+                                <i class="fas fa-bolt text-warning me-2"></i>Thao tác nhanh
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <a th:href="@{/teacher/attendance}" class="btn btn-outline-primary w-100 py-3">
+                                        <i class="fas fa-clipboard-check fa-2x d-block mb-2"></i>
+                                        <span>Điểm danh</span>
+                                    </a>
+                                </div>
+                                <div class="col-md-3">
+                                    <a th:href="@{/teacher/grades}" class="btn btn-outline-success w-100 py-3">
+                                        <i class="fas fa-star fa-2x d-block mb-2"></i>
+                                        <span>Nhập điểm</span>
+                                    </a>
+                                </div>
+                                <div class="col-md-3">
+                                    <a th:href="@{/teacher/schedules}" class="btn btn-outline-info w-100 py-3">
+                                        <i class="fas fa-calendar-alt fa-2x d-block mb-2"></i>
+                                        <span>Xem lịch</span>
+                                    </a>
+                                </div>
+                                <div class="col-md-3">
+                                    <a th:href="@{/teacher/students}" class="btn btn-outline-warning w-100 py-3">
+                                        <i class="fas fa-user-graduate fa-2x d-block mb-2"></i>
+                                        <span>Học viên</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <th:block th:fragment="scripts-extra">
+        <!-- Additional scripts if needed -->
+    </th:block>
+</th:block>
+</body>
+</html>

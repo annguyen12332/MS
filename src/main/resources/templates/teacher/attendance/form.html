@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{teacher/layout :: layout(~{::title}, ~{::content}, ~{::head}, ~{::scripts})}">
+<head>
+    <title th:text="${pageTitle}">Điểm danh</title>
+    <th:block th:fragment="head">
+        <style>
+            .attendance-row {
+                transition: all 0.3s ease;
+            }
+            .attendance-row:hover {
+                background-color: #f8f9fa;
+            }
+            .status-badge {
+                min-width: 100px;
+                cursor: pointer;
+            }
+        </style>
+    </th:block>
+</head>
+<body>
+    <div th:fragment="content">
+        <div class="container-fluid py-4">
+            <!-- Alert Messages -->
+            <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i>
+                <span th:text="${success}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <span th:text="${error}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mb-3">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a th:href="@{/teacher/attendance}">Điểm danh</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a th:href="@{/teacher/attendance/class/{id}/schedules(id=${schedule.classEntity.id})}"
+                           th:text="${schedule.classEntity.className}">
+                            Lập trình Java
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">
+                        Buổi <span th:text="${schedule.sessionNumber}">1</span>
+                    </li>
+                </ol>
+            </nav>
+
+            <!-- Schedule Info Card -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h4 class="fw-bold mb-3">
+                                <i class="fas fa-clipboard-check text-primary me-2"></i>
+                                Điểm danh - Buổi <span th:text="${schedule.sessionNumber}">1</span>
+                            </h4>
+                            <div class="row text-sm">
+                                <div class="col-md-6 mb-2">
+                                    <i class="fas fa-calendar me-2 text-muted"></i>
+                                    <strong>Ngày học:</strong>
+                                    <span th:text="${#temporals.format(schedule.sessionDate, 'dd/MM/yyyy (EEEE)')}">
+                                        01/01/2024
+                                    </span>
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <i class="fas fa-clock me-2 text-muted"></i>
+                                    <strong>Thời gian:</strong>
+                                    <span th:text="${#temporals.format(schedule.startTime, 'HH:mm')}">08:00</span>
+                                    -
+                                    <span th:text="${#temporals.format(schedule.endTime, 'HH:mm')}">10:00</span>
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <i class="fas fa-door-open me-2 text-muted"></i>
+                                    <strong>Phòng học:</strong>
+                                    <span th:text="${schedule.room} ?: 'Chưa xác định'">Phòng A101</span>
+                                </div>
+                                <div class="col-md-6 mb-2" th:if="${schedule.topic}">
+                                    <i class="fas fa-book me-2 text-muted"></i>
+                                    <strong>Chủ đề:</strong>
+                                    <span th:text="${schedule.topic}">Giới thiệu Java</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-md-end">
+                            <div class="d-grid gap-2">
+                                <form th:action="@{/teacher/attendance/schedule/{id}/mark-all(id=${schedule.id})}"
+                                      method="post" class="mark-all-form">
+                                    <input type="hidden" name="defaultStatus" value="PRESENT"/>
+                                    <button type="submit" class="btn btn-success btn-sm">
+                                        <i class="fas fa-check-double me-2"></i>
+                                        Điểm danh tất cả "Có mặt"
+                                    </button>
+                                </form>
+                                <form th:action="@{/teacher/attendance/schedule/{id}/mark-all(id=${schedule.id})}"
+                                      method="post" class="mark-all-form">
+                                    <input type="hidden" name="defaultStatus" value="ABSENT"/>
+                                    <button type="submit" class="btn btn-secondary btn-sm">
+                                        <i class="fas fa-times-circle me-2"></i>
+                                        Điểm danh tất cả "Vắng"
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Attendance Table -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 fw-bold">
+                            <i class="fas fa-users me-2 text-primary"></i>
+                            Danh sách học viên
+                            <span class="badge bg-secondary ms-2" th:text="${enrollments.size()}">25</span>
+                        </h5>
+                        <div>
+                            <span class="me-3">
+                                <i class="fas fa-check-circle text-success me-1"></i>
+                                Có mặt: <strong th:text="${existingAttendances.?[status.name() == 'PRESENT'].size()}">0</strong>
+                            </span>
+                            <span class="me-3">
+                                <i class="fas fa-times-circle text-danger me-1"></i>
+                                Vắng: <strong th:text="${existingAttendances.?[status.name() == 'ABSENT'].size()}">0</strong>
+                            </span>
+                            <span>
+                                <i class="fas fa-clock text-warning me-1"></i>
+                                Đi muộn: <strong th:text="${existingAttendances.?[status.name() == 'LATE'].size()}">0</strong>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width: 60px;" class="text-center">#</th>
+                                    <th style="width: 120px;">Mã SV</th>
+                                    <th>Họ và tên</th>
+                                    <th>Email</th>
+                                    <th style="width: 150px;" class="text-center">Trạng thái</th>
+                                    <th style="width: 200px;" class="text-center">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="enrollment, iterStat : ${enrollments}" class="attendance-row">
+                                    <td class="text-center fw-bold" th:text="${iterStat.count}">1</td>
+                                    <td th:text="${enrollment.student.username}">SV001</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="me-2">
+                                                <i class="fas fa-user-circle fa-lg text-muted"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fw-medium" th:text="${enrollment.student.fullName}">
+                                                    Nguyễn Văn A
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td th:text="${enrollment.student.email}">student@example.com</td>
+                                    <td class="text-center">
+                                        <!-- Display existing attendance status -->
+                                        <th:block th:with="attendance=${existingAttendances.?[student.id == enrollment.student.id].![0]}">
+                                            <span th:if="${attendance != null && attendance.status == T(com.nute.training.entity.Attendance.AttendanceStatus).PRESENT}"
+                                                  class="badge bg-success status-badge">
+                                                <i class="fas fa-check-circle me-1"></i>Có mặt
+                                            </span>
+                                            <span th:if="${attendance != null && attendance.status == T(com.nute.training.entity.Attendance.AttendanceStatus).ABSENT}"
+                                                  class="badge bg-danger status-badge">
+                                                <i class="fas fa-times-circle me-1"></i>Vắng
+                                            </span>
+                                            <span th:if="${attendance != null && attendance.status == T(com.nute.training.entity.Attendance.AttendanceStatus).LATE}"
+                                                  class="badge bg-warning status-badge">
+                                                <i class="fas fa-clock me-1"></i>Đi muộn
+                                            </span>
+                                            <span th:if="${attendance != null && attendance.status == T(com.nute.training.entity.Attendance.AttendanceStatus).EXCUSED}"
+                                                  class="badge bg-info status-badge">
+                                                <i class="fas fa-file-medical me-1"></i>Có phép
+                                            </span>
+                                            <span th:if="${attendance == null}"
+                                                  class="badge bg-secondary status-badge">
+                                                <i class="fas fa-question-circle me-1"></i>Chưa điểm danh
+                                            </span>
+                                        </th:block>
+                                    </td>
+                                    <td class="text-center">
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-primary"
+                                                data-bs-toggle="modal"
+                                                th:data-bs-target="'#attendanceModal' + ${enrollment.id}">
+                                            <i class="fas fa-edit me-1"></i>
+                                            Điểm danh
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Attendance Modals -->
+        <div th:each="enrollment : ${enrollments}">
+            <div class="modal fade" th:id="'attendanceModal' + ${enrollment.id}" tabindex="-1">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <form th:action="@{/teacher/attendance/schedule/{id}/mark(id=${schedule.id})}"
+                              method="post">
+                            <input type="hidden" name="studentId" th:value="${enrollment.student.id}"/>
+
+                            <div class="modal-header">
+                                <h5 class="modal-title">
+                                    <i class="fas fa-clipboard-check me-2"></i>
+                                    Điểm danh - <span th:text="${enrollment.student.fullName}">Học viên</span>
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Trạng thái điểm danh</label>
+                                    <select class="form-select" name="status" required>
+                                        <option value="">-- Chọn trạng thái --</option>
+                                        <option value="PRESENT">✓ Có mặt</option>
+                                        <option value="ABSENT">✗ Vắng</option>
+                                        <option value="LATE">⏰ Đi muộn</option>
+                                        <option value="EXCUSED">📝 Có phép</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Ghi chú (tùy chọn)</label>
+                                    <textarea class="form-control" name="note" rows="3"
+                                              placeholder="Nhập ghi chú nếu cần..."></textarea>
+                                </div>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                    Hủy
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>
+                                    Lưu điểm danh
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <th:block th:fragment="scripts">
+        <script>
+            // Auto dismiss alerts
+            setTimeout(function() {
+                $('.alert').fadeOut('slow');
+            }, 5000);
+
+            // Confirm mark all
+            $('.mark-all-form').on('submit', function(e) {
+                const status = $(this).find('input[name="defaultStatus"]').val();
+                const statusText = status === 'PRESENT' ? 'Có mặt' : 'Vắng';
+                if (!confirm(`Bạn có chắc muốn điểm danh tất cả học viên là "${statusText}"?`)) {
+                    e.preventDefault();
+                }
+            });
+        </script>
+    </th:block>
+</body>
+</html>

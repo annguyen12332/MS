@@ -1,0 +1,46 @@
+<div th:fragment="sidebar" class="sidebar">
+    <div class="sidebar-header">
+        <a href="/student/dashboard" class="logo-text">
+            <i class="fas fa-graduation-cap fa-lg"></i>
+            <span>NUTE Training</span>
+        </a>
+    </div>
+
+    <div class="sidebar-menu">
+        <div class="menu-label">Học viên</div>
+        <a th:href="@{/student/dashboard}"
+           class="nav-link"
+           th:classappend="${requestURI == '/student/dashboard' ? 'active' : ''}">
+            <i class="fas fa-home"></i>
+            <span>Trang chủ</span>
+        </a>
+
+        <div class="menu-label">Đào tạo</div>
+        <a th:href="@{/student/enrollments/browse}"
+           class="nav-link"
+           th:classappend="${requestURI == '/student/enrollments/browse' ? 'active' : ''}">
+            <i class="fas fa-search"></i>
+            <span>Tìm lớp học</span>
+        </a>
+        <a th:href="@{/student/enrollments/history}"
+           class="nav-link"
+           th:classappend="${requestURI == '/student/enrollments/history' ? 'active' : ''}">
+            <i class="fas fa-clipboard-list"></i>
+            <span>Lớp học của tôi</span>
+        </a>
+        <a th:href="@{/student/grades}"
+           class="nav-link"
+           th:classappend="${requestURI == '/student/grades' ? 'active' : ''}">
+            <i class="fas fa-chart-line"></i>
+            <span>Điểm số</span>
+        </a>
+
+        <div class="menu-label">Cá nhân</div>
+        <a th:href="@{/profile}"
+           class="nav-link"
+           th:classappend="${requestURI == '/profile' ? 'active' : ''}">
+            <i class="fas fa-user-circle"></i>
+            <span>Hồ sơ</span>
+        </a>
+    </div>
+</div>

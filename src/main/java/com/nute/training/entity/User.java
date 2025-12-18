@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
@@ -21,6 +22,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@SQLRestriction("deleted = false")
 public class User {
 
     @Id
@@ -67,6 +69,15 @@ public class User {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(name = "deleted")
+    private Boolean deleted = false;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
+    @Column(name = "deleted_by")
+    private String deletedBy;
+
     /**
      * Enum: Role
      * Vai trò người dùng
@@ -85,5 +96,15 @@ public class User {
         ACTIVE,     // Đang hoạt động
         INACTIVE,   // Không hoạt động
         SUSPENDED   // Bị khóa
+    }
+
+    /**
+     * Soft delete helper method
+     */
+    public void markAsDeleted(String deletedBy) {
+        this.deleted = true;
+        this.deletedAt = LocalDateTime.now();
+        this.deletedBy = deletedBy;
+        this.status = Status.INACTIVE;
     }
 }
