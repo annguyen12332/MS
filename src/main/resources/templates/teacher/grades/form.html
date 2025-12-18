@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{teacher/layout :: layout(~{::title}, ~{::content}, ~{::head}, ~{::scripts})}">
+<head>
+    <title>Nhập điểm - Giảng viên</title>
+    <th:block th:fragment="head">
+        <style>
+            .score-input {
+                font-size: 1.1rem;
+                text-align: center;
+                font-weight: 600;
+            }
+            .score-preview {
+                font-size: 2rem;
+                font-weight: bold;
+            }
+            .grade-card {
+                transition: all 0.3s;
+            }
+            .grade-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+            }
+        </style>
+    </th:block>
+</head>
+<body>
+    <div th:fragment="content">
+        <div class="container-fluid py-4">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mb-3">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a th:href="@{/teacher/grades}">
+                            <i class="fas fa-star me-1"></i>Quản lý điểm
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a th:href="@{/teacher/grades/class/{id}(id=${classEntity.id})}" th:text="${classEntity.className}">
+                            Lớp học
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">Nhập điểm</li>
+                </ol>
+            </nav>
+
+            <!-- Student & Class Info -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body">
+                            <h6 class="text-muted mb-3">
+                                <i class="fas fa-user-graduate me-2"></i>Thông tin học viên
+                            </h6>
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="avatar-lg bg-primary bg-opacity-10 rounded-circle p-3 me-3">
+                                    <i class="fas fa-user fa-2x text-primary"></i>
+                                </div>
+                                <div>
+                                    <h5 class="fw-bold mb-1" th:text="${student.fullName}">Nguyễn Văn A</h5>
+                                    <div class="text-muted">
+                                        <i class="fas fa-id-badge me-1"></i>
+                                        <span th:text="${student.username}">SV001</span>
+                                    </div>
+                                    <div class="text-muted">
+                                        <i class="fas fa-envelope me-1"></i>
+                                        <span th:text="${student.email}">student@example.com</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body">
+                            <h6 class="text-muted mb-3">
+                                <i class="fas fa-chalkboard me-2"></i>Thông tin lớp học
+                            </h6>
+                            <div class="mb-2">
+                                <strong>Lớp:</strong>
+                                <span th:text="${classEntity.className}">Lập trình Java</span>
+                            </div>
+                            <div class="mb-2">
+                                <strong>Mã lớp:</strong>
+                                <span th:text="${classEntity.classCode}">IT101-2024A</span>
+                            </div>
+                            <div class="mb-2">
+                                <strong>Khóa học:</strong>
+                                <span th:text="${classEntity.course != null ? classEntity.course.name : '-'}">Khóa học Java</span>
+                            </div>
+                            <div>
+                                <strong>Trạng thái:</strong>
+                                <span class="badge bg-primary ms-1" th:text="${classEntity.status}">ONGOING</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grade Form -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="fas fa-edit me-2 text-primary"></i>
+                        Nhập điểm số
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" th:action="@{/teacher/grades/save}" th:object="${grade}">
+                        <input type="hidden" name="enrollmentId" th:value="${enrollment.id}">
+
+                        <div class="row g-4">
+                            <!-- Attendance Score -->
+                            <div class="col-md-4">
+                                <div class="card grade-card border-0 bg-light h-100">
+                                    <div class="card-body text-center">
+                                        <div class="mb-3">
+                                            <i class="fas fa-calendar-check fa-2x text-warning"></i>
+                                        </div>
+                                        <h6 class="fw-bold mb-3">Điểm chuyên cần</h6>
+                                        <p class="text-muted small mb-3">Đánh giá sự tham gia, chuyên cần của học viên</p>
+                                        <div class="mb-3">
+                                            <input type="number"
+                                                   class="form-control form-control-lg score-input"
+                                                   id="attendanceScore"
+                                                   name="attendanceScore"
+                                                   th:value="${grade.attendanceScore}"
+                                                   min="0"
+                                                   max="10"
+                                                   step="0.01"
+                                                   placeholder="0.00">
+                                        </div>
+                                        <small class="text-muted">Thang điểm: 0 - 10</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Process Score -->
+                            <div class="col-md-4">
+                                <div class="card grade-card border-0 bg-light h-100">
+                                    <div class="card-body text-center">
+                                        <div class="mb-3">
+                                            <i class="fas fa-tasks fa-2x text-info"></i>
+                                        </div>
+                                        <h6 class="fw-bold mb-3">Điểm quá trình</h6>
+                                        <p class="text-muted small mb-3">Điểm bài tập, thực hành, kiểm tra giữa kỳ</p>
+                                        <div class="mb-3">
+                                            <input type="number"
+                                                   class="form-control form-control-lg score-input"
+                                                   id="processScore"
+                                                   name="processScore"
+                                                   th:value="${grade.processScore}"
+                                                   min="0"
+                                                   max="10"
+                                                   step="0.01"
+                                                   placeholder="0.00">
+                                        </div>
+                                        <small class="text-muted">Thang điểm: 0 - 10</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Final Score -->
+                            <div class="col-md-4">
+                                <div class="card grade-card border-0 bg-light h-100">
+                                    <div class="card-body text-center">
+                                        <div class="mb-3">
+                                            <i class="fas fa-graduation-cap fa-2x text-success"></i>
+                                        </div>
+                                        <h6 class="fw-bold mb-3">Điểm thi cuối kỳ</h6>
+                                        <p class="text-muted small mb-3">Điểm thi kết thúc học phần</p>
+                                        <div class="mb-3">
+                                            <input type="number"
+                                                   class="form-control form-control-lg score-input"
+                                                   id="finalScore"
+                                                   name="finalScore"
+                                                   th:value="${grade.finalScore}"
+                                                   min="0"
+                                                   max="10"
+                                                   step="0.01"
+                                                   placeholder="0.00">
+                                        </div>
+                                        <small class="text-muted">Thang điểm: 0 - 10</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Total Score Preview -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="card border-primary">
+                                    <div class="card-body text-center">
+                                        <h6 class="text-muted mb-2">Điểm tổng kết (tự động tính)</h6>
+                                        <div class="score-preview text-primary" id="totalScorePreview">
+                                            <span th:if="${grade.totalScore != null}" th:text="${#numbers.formatDecimal(grade.totalScore, 1, 2)}">0.00</span>
+                                            <span th:unless="${grade.totalScore != null}">-</span>
+                                        </div>
+                                        <small class="text-muted d-block mt-2">
+                                            Công thức: Chuyên cần (10%) + Quá trình (30%) + Cuối kỳ (60%)
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Notes -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <label for="note" class="form-label fw-semibold">
+                                    <i class="fas fa-sticky-note me-1"></i>Ghi chú
+                                </label>
+                                <textarea class="form-control"
+                                          id="note"
+                                          name="note"
+                                          rows="3"
+                                          th:text="${grade.note}"
+                                          placeholder="Nhập ghi chú về kết quả học tập của học viên (không bắt buộc)"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between">
+                                    <a th:href="@{/teacher/grades/class/{id}(id=${classEntity.id})}"
+                                       class="btn btn-lg btn-outline-secondary">
+                                        <i class="fas fa-arrow-left me-2"></i>Quay lại
+                                    </a>
+                                    <button type="submit" class="btn btn-lg btn-primary">
+                                        <i class="fas fa-save me-2"></i>Lưu điểm
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <th:block th:fragment="scripts">
+        <script>
+            // Auto calculate total score
+            function calculateTotalScore() {
+                const attendance = parseFloat(document.getElementById('attendanceScore').value) || 0;
+                const process = parseFloat(document.getElementById('processScore').value) || 0;
+                const final = parseFloat(document.getElementById('finalScore').value) || 0;
+
+                // Formula: 10% attendance + 30% process + 60% final
+                const total = (attendance * 0.1) + (process * 0.3) + (final * 0.6);
+
+                document.getElementById('totalScorePreview').textContent = total.toFixed(2);
+            }
+
+            // Add event listeners
+            document.getElementById('attendanceScore').addEventListener('input', calculateTotalScore);
+            document.getElementById('processScore').addEventListener('input', calculateTotalScore);
+            document.getElementById('finalScore').addEventListener('input', calculateTotalScore);
+
+            // Calculate on page load
+            calculateTotalScore();
+        </script>
+    </th:block>
+</body>
+</html>

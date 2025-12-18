@@ -46,13 +46,8 @@
                                     </p>
                                     <div class="d-flex gap-2 flex-wrap">
                                         <span class="badge"
-                                              th:classappend="${enrollment.status.name() == 'APPROVED'} ? 'bg-success' :
-                                                             ${enrollment.status.name() == 'PENDING'} ? 'bg-warning' :
-                                                             ${enrollment.status.name() == 'COMPLETED'} ? 'bg-info' : 'bg-danger'"
-                                              th:text="${enrollment.status.name() == 'APPROVED'} ? 'Đang học' :
-                                                        ${enrollment.status.name() == 'PENDING'} ? 'Chờ duyệt' :
-                                                        ${enrollment.status.name() == 'COMPLETED'} ? 'Đã hoàn thành' :
-                                                        ${enrollment.status.name() == 'REJECTED'} ? 'Bị từ chối' : 'Đã bỏ học'">
+                                              th:classappend="${enrollment.status.name() == 'APPROVED' ? 'bg-success' : (enrollment.status.name() == 'PENDING' ? 'bg-warning' : (enrollment.status.name() == 'COMPLETED' ? 'bg-info' : 'bg-danger'))}"
+                                              th:text="${enrollment.status.name() == 'APPROVED' ? 'Đang học' : (enrollment.status.name() == 'PENDING' ? 'Chờ duyệt' : (enrollment.status.name() == 'COMPLETED' ? 'Đã hoàn thành' : (enrollment.status.name() == 'REJECTED' ? 'Bị từ chối' : 'Đã bỏ học')))}">
                                             Trạng thái
                                         </span>
                                         <span class="badge bg-light text-dark">
@@ -185,10 +180,8 @@
                                                     <label class="small text-muted">Trạng thái tài khoản</label>
                                                     <p>
                                                         <span class="badge"
-                                                              th:classappend="${student.status.name() == 'ACTIVE'} ? 'bg-success' :
-                                                                             ${student.status.name() == 'INACTIVE'} ? 'bg-secondary' : 'bg-danger'"
-                                                              th:text="${student.status.name() == 'ACTIVE'} ? 'Đang hoạt động' :
-                                                                        ${student.status.name() == 'INACTIVE'} ? 'Ngừng hoạt động' : 'Bị khóa'">
+                                                              th:classappend="${student.status.name() == 'ACTIVE' ? 'bg-success' : (student.status.name() == 'INACTIVE' ? 'bg-secondary' : 'bg-danger')}"
+                                                              th:text="${student.status.name() == 'ACTIVE' ? 'Đang hoạt động' : (student.status.name() == 'INACTIVE' ? 'Ngừng hoạt động' : 'Bị khóa')}">
                                                             Trạng thái
                                                         </span>
                                                     </p>
@@ -217,10 +210,8 @@
                                                     <label class="small text-muted">Trạng thái học</label>
                                                     <p>
                                                         <span class="badge"
-                                                              th:classappend="${enrollment.status.name() == 'APPROVED'} ? 'bg-success' :
-                                                                             ${enrollment.status.name() == 'PENDING'} ? 'bg-warning' : 'bg-danger'"
-                                                              th:text="${enrollment.status.name() == 'APPROVED'} ? 'Đang học' :
-                                                                        ${enrollment.status.name() == 'PENDING'} ? 'Chờ duyệt' : 'Khác'">
+                                                              th:classappend="${enrollment.status.name() == 'APPROVED' ? 'bg-success' : (enrollment.status.name() == 'PENDING' ? 'bg-warning' : 'bg-danger')}"
+                                                              th:text="${enrollment.status.name() == 'APPROVED' ? 'Đang học' : (enrollment.status.name() == 'PENDING' ? 'Chờ duyệt' : 'Khác')}">
                                                             Trạng thái
                                                         </span>
                                                     </p>
@@ -229,10 +220,8 @@
                                                     <label class="small text-muted">Thanh toán</label>
                                                     <p>
                                                         <span class="badge"
-                                                              th:classappend="${enrollment.paymentStatus.name() == 'PAID'} ? 'bg-success' :
-                                                                             ${enrollment.paymentStatus.name() == 'PARTIAL'} ? 'bg-warning' : 'bg-secondary'"
-                                                              th:text="${enrollment.paymentStatus.name() == 'PAID'} ? 'Đã thanh toán' :
-                                                                        ${enrollment.paymentStatus.name() == 'PARTIAL'} ? 'Thanh toán 1 phần' : 'Chưa thanh toán'">
+                                                              th:classappend="${enrollment.paymentStatus.name() == 'PAID' ? 'bg-success' : (enrollment.paymentStatus.name() == 'PARTIAL' ? 'bg-warning' : 'bg-secondary')}"
+                                                              th:text="${enrollment.paymentStatus.name() == 'PAID' ? 'Đã thanh toán' : (enrollment.paymentStatus.name() == 'PARTIAL' ? 'Thanh toán 1 phần' : 'Chưa thanh toán')}">
                                                             Thanh toán
                                                         </span>
                                                     </p>
@@ -355,12 +344,8 @@
                                                     </td>
                                                     <td>
                                                         <span class="badge"
-                                                              th:classappend="${attendance.status.name() == 'PRESENT'} ? 'bg-success' :
-                                                                             ${attendance.status.name() == 'LATE'} ? 'bg-warning' :
-                                                                             ${attendance.status.name() == 'EXCUSED'} ? 'bg-info' : 'bg-danger'"
-                                                              th:text="${attendance.status.name() == 'PRESENT'} ? 'Có mặt' :
-                                                                        ${attendance.status.name() == 'LATE'} ? 'Đi muộn' :
-                                                                        ${attendance.status.name() == 'EXCUSED'} ? 'Có phép' : 'Vắng mặt'">
+                                                              th:classappend="${attendance.status.name() == 'PRESENT' ? 'bg-success' : attendance.status.name() == 'LATE' ? 'bg-warning' : attendance.status.name() == 'EXCUSED' ? 'bg-info' : 'bg-danger'}"
+                                                              th:text="${attendance.status.name() == 'PRESENT' ? 'Có mặt' : attendance.status.name() == 'LATE' ? 'Đi muộn' : attendance.status.name() == 'EXCUSED' ? 'Có phép' : 'Vắng mặt'}">
                                                             Trạng thái
                                                         </span>
                                                     </td>

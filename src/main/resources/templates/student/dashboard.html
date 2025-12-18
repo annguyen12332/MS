@@ -84,26 +84,14 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr th:each="enrollment : ${enrollments}">
-                                    <td class="fw-medium" th:text="${enrollment.classEntity.className}"></td>
-                                    <td th:text="${enrollment.classEntity.course.name}"></td>
+                                <tr th:each="enrollment : ${enrollments}" th:if="${enrollment.status.name() == 'APPROVED'}">
+                                    <td class="fw-medium" th:text="${enrollment.className}"></td>
+                                    <td th:text="${enrollment.courseName}"></td>
                                     <td th:text="${#temporals.format(enrollment.enrollmentDate, 'dd/MM/yyyy')}"></td>
                                     <td>
-                                        <span th:if="${enrollment.status.name() == 'PENDING'}"
-                                              class="badge bg-warning bg-opacity-10 text-warning">
-                                            <i class="fas fa-clock me-1"></i>Chờ duyệt
-                                        </span>
-                                        <span th:if="${enrollment.status.name() == 'APPROVED'}"
-                                              class="badge bg-success bg-opacity-10 text-success">
-                                            <i class="fas fa-check-circle me-1"></i>Đã phê duyệt
-                                        </span>
-                                        <span th:if="${enrollment.status.name() == 'REJECTED'}"
-                                              class="badge bg-danger bg-opacity-10 text-danger">
-                                            <i class="fas fa-times-circle me-1"></i>Từ chối
-                                        </span>
-                                        <span th:if="${enrollment.status.name() == 'COMPLETED'}"
-                                              class="badge bg-info bg-opacity-10 text-info">
-                                            <i class="fas fa-graduation-cap me-1"></i>Hoàn thành
+                                        <span th:class="${enrollment.statusBadgeClass}" class="badge">
+                                            <i th:class="'fas ' + ${enrollment.statusIcon} + ' me-1'"></i>
+                                            <span th:text="${enrollment.statusText}">Trạng thái</span>
                                         </span>
                                     </td>
                                     <td>
@@ -139,8 +127,8 @@
                                 <div class="d-flex align-items-start">
                                     <div class="flex-shrink-0">
                                         <div class="avatar-sm bg-primary bg-opacity-10 rounded p-2 text-center" style="width: 50px; height: 50px">
-                                            <div class="fw-bold text-primary" th:text="${#temporals.format(schedule.scheduleDate, 'dd')}">01</div>
-                                            <small class="text-muted" style="font-size: 0.7rem" th:text="${#temporals.format(schedule.scheduleDate, 'MMM')}">Jan</small>
+                                            <div class="fw-bold text-primary" th:text="${#temporals.format(schedule.sessionDate, 'dd')}">01</div>
+                                            <small class="text-muted" style="font-size: 0.7rem" th:text="${#temporals.format(schedule.sessionDate, 'MMM')}">Jan</small>
                                         </div>
                                     </div>
                                     <div class="flex-grow-1 ms-3">
@@ -150,7 +138,7 @@
                                             <i class="fas fa-clock me-1"></i>
                                             <span th:text="${schedule.startTime + ' - ' + schedule.endTime}">10:00 - 12:00</span>
                                         </div>
-                                        <div class="d-flex align-items-center small text-muted mt-1">
+                                        <div class="d-flex align-items-center small text-muted mt-1" th:if="${schedule.room}">
                                             <i class="fas fa-map-marker-alt me-1"></i>
                                             <span th:text="${schedule.room}">Room</span>
                                         </div>

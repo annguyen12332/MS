@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{${layoutPath} :: layout(~{::title}, ~{::content}, ~{}, ~{})}">
+<head>
+    <title>Hồ sơ cá nhân</title>
+</head>
+<body>
+    <div th:fragment="content">
+        <div class="row">
+            <div class="col-12 col-lg-4 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-body text-center p-5">
+                        <div class="avatar-xl bg-light rounded-circle mx-auto mb-4 d-flex align-items-center justify-content-center text-primary display-4 fw-bold"
+                             style="width: 100px; height: 100px">
+                            <span th:text="${#strings.substring(user.fullName, 0, 1)}">A</span>
+                        </div>
+                        <h4 class="fw-bold mb-1" th:text="${user.fullName}">Full Name</h4>
+                        <p class="text-muted mb-3" th:text="${user.username}">username</p>
+                        <span class="badge rounded-pill px-3 py-2 mb-2"
+                                th:classappend="${user.role.name() == 'ADMIN' ? 'bg-danger' : (user.role.name() == 'TEACHER' ? 'bg-success' : 'bg-info')}"
+                                th:text="${user.role}">ROLE</span>
+                        <div class="mt-2">
+                             <span class="badge"
+                                   th:classappend="${user.status.name() == 'ACTIVE' ? 'bg-success bg-opacity-10 text-success' : 'bg-secondary bg-opacity-10 text-secondary'}"
+                                   th:text="${user.status}">STATUS</span>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white p-3">
+                         <div class="d-grid gap-2">
+                            <a th:href="@{/profile/edit}" class="btn btn-primary">
+                                <i class="fas fa-edit me-2"></i>Chỉnh sửa thông tin
+                            </a>
+                            <a th:href="@{/profile/change-password}" class="btn btn-outline-warning">
+                                <i class="fas fa-key me-2"></i>Đổi mật khẩu
+                            </a>
+                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-8">
+                <!-- Success/Error Messages -->
+                <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i><span th:text="${success}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i><span th:text="${error}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0 fw-bold">Thông tin chi tiết</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3 border-bottom pb-3">
+                            <div class="col-sm-4 text-muted">Email</div>
+                            <div class="col-sm-8 fw-medium" th:text="${user.email}">email@example.com</div>
+                        </div>
+                        <div class="row mb-3 border-bottom pb-3">
+                            <div class="col-sm-4 text-muted">Số điện thoại</div>
+                            <div class="col-sm-8 fw-medium" th:text="${user.phone != null ? user.phone : 'Chưa cập nhật'}">0123456789</div>
+                        </div>
+                        <div class="row mb-3 border-bottom pb-3">
+                            <div class="col-sm-4 text-muted">Vai trò</div>
+                            <div class="col-sm-8 fw-medium">
+                                <span class="badge rounded-pill px-3 py-2"
+                                        th:classappend="${user.role.name() == 'ADMIN' ? 'bg-danger' : (user.role.name() == 'TEACHER' ? 'bg-success' : 'bg-info')}"
+                                        th:text="${user.role}">ROLE</span>
+                            </div>
+                        </div>
+                        <div class="row mb-3 border-bottom pb-3">
+                            <div class="col-sm-4 text-muted">Ngày tạo</div>
+                            <div class="col-sm-8 fw-medium" th:text="${#temporals.format(user.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2024</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-4 text-muted">Cập nhật lần cuối</div>
+                            <div class="col-sm-8 fw-medium" th:text="${#temporals.format(user.updatedAt, 'dd/MM/yyyy HH:mm')}">01/01/2024</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

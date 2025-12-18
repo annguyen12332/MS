@@ -27,6 +27,17 @@ public class ProfileController {
     private final AuthenticationHelper authenticationHelper;
 
     /**
+     * Helper method to get layout path based on user role
+     */
+    private String getLayoutPath(User.Role role) {
+        return switch (role) {
+            case ADMIN -> "admin/layout";
+            case TEACHER -> "teacher/layout";
+            case STUDENT -> "student/layout";
+        };
+    }
+
+    /**
      * Xem hồ sơ cá nhân
      */
     @GetMapping
@@ -35,6 +46,7 @@ public class ProfileController {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         model.addAttribute("user", currentUser);
+        model.addAttribute("layoutPath", getLayoutPath(currentUser.getRole()));
         return "profile/view";
     }
 
@@ -47,6 +59,7 @@ public class ProfileController {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         model.addAttribute("user", currentUser);
+        model.addAttribute("layoutPath", getLayoutPath(currentUser.getRole()));
         return "profile/edit";
     }
 
@@ -93,6 +106,10 @@ public class ProfileController {
      */
     @GetMapping("/change-password")
     public String changePasswordForm(Model model) {
+        User currentUser = authenticationHelper.getCurrentUser()
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        model.addAttribute("layoutPath", getLayoutPath(currentUser.getRole()));
         model.addAttribute("currentPassword", "");
         model.addAttribute("newPassword", "");
         model.addAttribute("confirmPassword", "");

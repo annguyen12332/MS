@@ -34,16 +34,18 @@ public class StudentDashboardController {
             User currentStudent = authenticationHelper.getCurrentUser()
                     .orElseThrow(() -> new RuntimeException("User not found"));
 
-            // Các khóa học đang tham gia (APPROVED)
-            List<Enrollment> myEnrollments = enrollmentService.findByStudent(currentStudent);
-            long activeCourses = myEnrollments.stream()
+            // Lấy danh sách enrollment với DTO projection (tránh lazy loading)
+            var enrollmentHistory = enrollmentService.findEnrollmentHistoryByStudent(currentStudent);
+
+            // Đếm số khóa học đang tham gia (APPROVED)
+            long activeCourses = enrollmentHistory.stream()
                     .filter(e -> e.getStatus() == Enrollment.EnrollmentStatus.APPROVED)
                     .count();
 
             // Lịch học sắp tới
             var upcomingSchedules = scheduleService.findUpcomingSchedulesForStudent(currentStudent);
-            
-            model.addAttribute("enrollments", myEnrollments);
+
+            model.addAttribute("enrollments", enrollmentHistory);
             model.addAttribute("activeCoursesCount", activeCourses);
             model.addAttribute("studentName", currentStudent.getFullName());
             model.addAttribute("upcomingSchedules", upcomingSchedules);

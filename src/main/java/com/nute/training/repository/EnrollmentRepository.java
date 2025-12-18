@@ -65,8 +65,12 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
 
     /**
      * Tìm tất cả đăng ký APPROVED của lớp
+     * Eager fetch student để tránh lazy loading exception
      */
-    @Query("SELECT e FROM Enrollment e WHERE e.classEntity = :classEntity AND e.status = 'APPROVED'")
+    @Query("SELECT e FROM Enrollment e " +
+           "LEFT JOIN FETCH e.student " +
+           "WHERE e.classEntity = :classEntity AND e.status = 'APPROVED' " +
+           "ORDER BY e.student.fullName ASC")
     List<Enrollment> findApprovedEnrollmentsByClass(@Param("classEntity") ClassEntity classEntity);
 
     /**

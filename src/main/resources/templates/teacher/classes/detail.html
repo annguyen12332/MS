@@ -199,18 +199,15 @@
                                                     <td th:text="${student.phone}">0123456789</td>
                                                     <td>
                                                         <span class="badge"
-                                                              th:classappend="${student.status.name() == 'ACTIVE'} ? 'bg-success' :
-                                                                             ${student.status.name() == 'INACTIVE'} ? 'bg-secondary' : 'bg-danger'"
-                                                              th:text="${student.status.name() == 'ACTIVE'} ? 'Đang hoạt động' :
-                                                                        ${student.status.name() == 'INACTIVE'} ? 'Ngừng hoạt động' : 'Bị khóa'">
+                                                              th:classappend="${student.status.name() == 'ACTIVE' ? 'bg-success' : (student.status.name() == 'INACTIVE' ? 'bg-secondary' : 'bg-danger')}"
+                                                              th:text="${student.status.name() == 'ACTIVE' ? 'Đang hoạt động' : (student.status.name() == 'INACTIVE' ? 'Ngừng hoạt động' : 'Bị khóa')}">
                                                             Trạng thái
                                                         </span>
                                                     </td>
                                                     <td>
                                                         <span th:if="${studentAttendance[student.id] != null}"
                                                               class="badge"
-                                                              th:classappend="${studentAttendance[student.id] >= 80} ? 'bg-success' :
-                                                                             ${studentAttendance[student.id] >= 50} ? 'bg-warning' : 'bg-danger'"
+                                                              th:classappend="${studentAttendance[student.id] >= 80 ? 'bg-success' : (studentAttendance[student.id] >= 50 ? 'bg-warning' : 'bg-danger')}"
                                                               th:text="${#numbers.formatDecimal(studentAttendance[student.id], 1, 1)} + '%'">
                                                             0%
                                                         </span>
@@ -267,10 +264,7 @@
                                                     <td><strong th:text="${#numbers.formatDecimal(grade.totalScore, 1, 2)}">0.00</strong></td>
                                                     <td>
                                                         <span class="badge"
-                                                              th:classappend="${grade.gradeLetter == 'A'} ? 'bg-success' :
-                                                                             ${grade.gradeLetter == 'B'} ? 'bg-info' :
-                                                                             ${grade.gradeLetter == 'C'} ? 'bg-warning' :
-                                                                             ${grade.gradeLetter == 'D'} ? 'bg-secondary' : 'bg-danger'"
+                                                              th:classappend="${grade.gradeLetter == 'A' ? 'bg-success' : grade.gradeLetter == 'B' ? 'bg-info' : grade.gradeLetter == 'C' ? 'bg-warning' : grade.gradeLetter == 'D' ? 'bg-secondary' : 'bg-danger'}"
                                                               th:text="${grade.gradeLetter}">
                                                             A
                                                         </span>

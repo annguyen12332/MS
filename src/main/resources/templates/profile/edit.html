@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{${layoutPath} :: layout(~{::title}, ~{::content}, ~{}, ~{})}">
+<head>
+    <title>Chỉnh sửa hồ sơ</title>
+</head>
+<body>
+    <div th:fragment="content">
+        <div class="row justify-content-center">
+            <div class="col-12 col-lg-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0 fw-bold">Chỉnh sửa thông tin cá nhân</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <!-- Success/Error Messages -->
+                        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fas fa-check-circle me-2"></i><span th:text="${success}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-circle me-2"></i><span th:text="${error}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+
+                        <form th:action="@{/profile/update}" method="post" th:object="${user}">
+                            <input type="hidden" th:field="*{id}">
+                            <input type="hidden" th:field="*{username}">
+                            <input type="hidden" th:field="*{password}">
+                            <input type="hidden" th:field="*{role}">
+                            <input type="hidden" th:field="*{status}">
+
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="username" class="form-label">Tên đăng nhập</label>
+                                    <input type="text" class="form-control bg-light" id="username" th:value="${user.username}" disabled>
+                                    <small class="text-muted">Tên đăng nhập không thể thay đổi</small>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="role" class="form-label">Vai trò</label>
+                                    <input type="text" class="form-control bg-light" id="role" th:value="${user.role}" disabled>
+                                    <small class="text-muted">Vai trò không thể thay đổi</small>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <label for="fullName" class="form-label">Họ và tên <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="fullName" th:field="*{fullName}"
+                                           th:classappend="${#fields.hasErrors('fullName')} ? 'is-invalid'">
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}">Error</div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                                    <input type="email" class="form-control" id="email" th:field="*{email}"
+                                           th:classappend="${#fields.hasErrors('email')} ? 'is-invalid'">
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('email')}" th:errors="*{email}">Error</div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="phone" class="form-label">Số điện thoại</label>
+                                    <input type="text" class="form-control" id="phone" th:field="*{phone}">
+                                </div>
+                            </div>
+
+                            <div class="mt-4 d-flex justify-content-end gap-2">
+                                <a th:href="@{/profile}" class="btn btn-light">Hủy bỏ</a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>Lưu thay đổi
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

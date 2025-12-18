@@ -113,9 +113,16 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
 
     /**
      * Tìm lịch sắp tới của học viên (dựa trên các lớp đã đăng ký APPROVED)
+     * Eager fetch classEntity và course để tránh N+1 problem
      */
-    @Query("SELECT s FROM Schedule s JOIN s.classEntity c JOIN c.enrollments e WHERE " +
-           "e.student.id = :studentId AND e.status = 'APPROVED' AND s.sessionDate >= :today AND s.status != 'CANCELLED' " +
+    @Query("SELECT DISTINCT s FROM Schedule s " +
+           "JOIN FETCH s.classEntity c " +
+           "JOIN FETCH c.course " +
+           "JOIN c.enrollments e " +
+           "WHERE e.student.id = :studentId " +
+           "AND e.status = 'APPROVED' " +
+           "AND s.sessionDate >= :today " +
+           "AND s.status != 'CANCELLED' " +
            "ORDER BY s.sessionDate, s.startTime")
     List<Schedule> findUpcomingSchedulesForStudent(
             @Param("studentId") Long studentId,

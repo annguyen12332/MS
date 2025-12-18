@@ -66,7 +66,7 @@
                             </div>
                         </div>
                         <h6 class="text-muted fw-semibold mb-1">Đạt yêu cầu</h6>
-                        <h3 class="fw-bold mb-0" th:text="${#lists.size(#lists.select(grades, g -> g.pass))}">0</h3>
+                        <h3 class="fw-bold mb-0" th:text="${#lists.size(grades.?[pass])}">0</h3>
                         <small class="text-muted">môn đã qua</small>
                     </div>
                 </div>
@@ -82,7 +82,7 @@
                             </div>
                         </div>
                         <h6 class="text-muted fw-semibold mb-1">Chưa đạt</h6>
-                        <h3 class="fw-bold mb-0" th:text="${#lists.size(#lists.select(grades, g -> !g.pass))}">0</h3>
+                        <h3 class="fw-bold mb-0" th:text="${#lists.size(grades.?[!pass])}">0</h3>
                         <small class="text-muted">môn chưa qua</small>
                     </div>
                 </div>
@@ -150,11 +150,11 @@
                                 <span class="small text-muted">
                                     <i class="fas fa-file-alt me-1"></i>Thi cuối kỳ (60%)
                                 </span>
-                                <span class="fw-medium" th:text="${grade.finalExamScore}">0</span>
+                                <span class="fw-medium" th:text="${grade.finalScore}">0</span>
                             </div>
                             <div class="progress mb-3" style="height: 6px">
                                 <div class="progress-bar bg-primary"
-                                     th:style="'width: ' + ${grade.finalExamScore * 10} + '%'"></div>
+                                     th:style="'width: ' + ${grade.finalScore * 10} + '%'"></div>
                             </div>
                         </div>
 
@@ -247,7 +247,7 @@
                                 <span class="badge bg-warning bg-opacity-10 text-warning" th:text="${grade.processScore}">0</span>
                             </td>
                             <td class="text-center">
-                                <span class="badge bg-primary bg-opacity-10 text-primary" th:text="${grade.finalExamScore}">0</span>
+                                <span class="badge bg-primary bg-opacity-10 text-primary" th:text="${grade.finalScore}">0</span>
                             </td>
                             <td class="text-center">
                                 <span class="fw-bold" th:text="${#numbers.formatDecimal(grade.totalScore, 1, 2)}">0.00</span>
