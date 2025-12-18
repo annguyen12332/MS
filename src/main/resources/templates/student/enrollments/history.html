@@ -30,7 +30,7 @@
                             </div>
                             <div>
                                 <div class="text-muted small">Chờ duyệt</div>
-                                <h5 class="mb-0 fw-bold" th:text="${#lists.size(#lists.select(enrollments, e -> e.status.name() == 'PENDING'))}">0</h5>
+                                <h5 class="mb-0 fw-bold" th:text="${#lists.size(enrollments.?[status.name() == 'PENDING'])}">0</h5>
                             </div>
                         </div>
                     </div>
@@ -48,7 +48,7 @@
                             </div>
                             <div>
                                 <div class="text-muted small">Đã phê duyệt</div>
-                                <h5 class="mb-0 fw-bold" th:text="${#lists.size(#lists.select(enrollments, e -> e.status.name() == 'APPROVED'))}">0</h5>
+                                <h5 class="mb-0 fw-bold" th:text="${#lists.size(enrollments.?[status.name() == 'APPROVED'])}">0</h5>
                             </div>
                         </div>
                     </div>
@@ -66,7 +66,7 @@
                             </div>
                             <div>
                                 <div class="text-muted small">Hoàn thành</div>
-                                <h5 class="mb-0 fw-bold" th:text="${#lists.size(#lists.select(enrollments, e -> e.status.name() == 'COMPLETED'))}">0</h5>
+                                <h5 class="mb-0 fw-bold" th:text="${#lists.size(enrollments.?[status.name() == 'COMPLETED'])}">0</h5>
                             </div>
                         </div>
                     </div>
@@ -84,7 +84,7 @@
                             </div>
                             <div>
                                 <div class="text-muted small">Từ chối</div>
-                                <h5 class="mb-0 fw-bold" th:text="${#lists.size(#lists.select(enrollments, e -> e.status.name() == 'REJECTED'))}">0</h5>
+                                <h5 class="mb-0 fw-bold" th:text="${#lists.size(enrollments.?[status.name() == 'REJECTED'])}">0</h5>
                             </div>
                         </div>
                     </div>
@@ -115,9 +115,9 @@
                             <td class="text-muted" th:text="${iterStat.count}">1</td>
                             <td>
                                 <div class="fw-medium" th:text="${enrollment.classEntity.className}">Tên lớp</div>
-                                <small class="text-muted" th:if="${enrollment.classEntity.location}">
+                                <small class="text-muted" th:if="${enrollment.classEntity.room}">
                                     <i class="fas fa-map-marker-alt me-1"></i>
-                                    <span th:text="${enrollment.classEntity.location}">Địa điểm</span>
+                                    <span th:text="${enrollment.classEntity.room}">Địa điểm</span>
                                 </small>
                             </td>
                             <td>
@@ -217,9 +217,9 @@
                                         <small class="text-muted d-block">Giảng viên</small>
                                         <div th:text="${enrollment.classEntity.teacher.fullName}">Teacher</div>
                                     </div>
-                                    <div class="mb-2" th:if="${enrollment.classEntity.location}">
+                                    <div class="mb-2" th:if="${enrollment.classEntity.room}">
                                         <small class="text-muted d-block">Địa điểm</small>
-                                        <div th:text="${enrollment.classEntity.location}">Location</div>
+                                        <div th:text="${enrollment.classEntity.room}">Location</div>
                                     </div>
                                 </div>
 
@@ -232,10 +232,6 @@
                                     <div class="mb-2" th:if="${enrollment.notes}">
                                         <small class="text-muted d-block">Ghi chú</small>
                                         <div th:text="${enrollment.notes}">Notes</div>
-                                    </div>
-                                    <div class="mb-2" th:if="${enrollment.status.name() == 'REJECTED' && enrollment.rejectionReason}">
-                                        <small class="text-muted d-block">Lý do từ chối</small>
-                                        <div class="text-danger" th:text="${enrollment.rejectionReason}">Rejection Reason</div>
                                     </div>
                                 </div>
                             </div>
