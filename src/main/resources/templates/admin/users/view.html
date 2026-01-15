@@ -1,36 +1,37 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" 
-      th:replace="~{admin/layout :: layout(~{::title}, ~{::content}, ~{}, ~{})}">
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{admin/layout :: layout(~{::title}, ~{::content}, ~{}, ~{})}">
+
 <head>
     <title>Chi tiết người dùng</title>
 </head>
+
 <body>
     <div th:fragment="content">
         <div class="row">
             <div class="col-12 col-lg-4 mb-4">
                 <div class="card shadow-sm">
                     <div class="card-body text-center p-5">
-                        <div class="avatar-xl bg-light rounded-circle mx-auto mb-4 d-flex align-items-center justify-content-center text-primary display-4 fw-bold" 
-                             style="width: 100px; height: 100px">
+                        <div class="avatar-xl bg-light rounded-circle mx-auto mb-4 d-flex align-items-center justify-content-center text-primary display-4 fw-bold"
+                            style="width: 100px; height: 100px">
                             <span th:text="${#strings.substring(user.fullName, 0, 1)}">A</span>
                         </div>
                         <h4 class="fw-bold mb-1" th:text="${user.fullName}">Full Name</h4>
                         <p class="text-muted mb-3" th:text="${user.username}">username</p>
-                        <span class="badge rounded-pill px-3 py-2 mb-2" 
-                                th:classappend="${user.role.name() == 'ADMIN' ? 'bg-danger' : (user.role.name() == 'TEACHER' ? 'bg-success' : 'bg-info')}"
-                                th:text="${user.role}">ROLE</span>
+                        <span class="badge rounded-pill px-3 py-2 mb-2"
+                            th:classappend="${user.role.name() == 'ADMIN' ? 'bg-danger' : (user.role.name() == 'TEACHER' ? 'bg-success' : 'bg-info')}"
+                            th:text="${user.role}">ROLE</span>
                         <div class="mt-2">
-                             <span class="badge"
-                                   th:classappend="${user.status.name() == 'ACTIVE' ? 'bg-success bg-opacity-10 text-success' : 'bg-secondary bg-opacity-10 text-secondary'}"
-                                   th:text="${user.status}">STATUS</span>
+                            <span class="badge"
+                                th:classappend="${user.status.name() == 'ACTIVE' ? 'bg-success bg-opacity-10 text-success' : 'bg-secondary bg-opacity-10 text-secondary'}"
+                                th:text="${user.status}">STATUS</span>
                         </div>
                     </div>
                     <div class="card-footer bg-white p-3">
-                         <div class="d-grid gap-2">
+                        <div class="d-grid gap-2">
                             <a th:href="@{/admin/users/{id}/edit(id=${user.id})}" class="btn btn-primary">
                                 <i class="fas fa-edit me-2"></i>Chỉnh sửa thông tin
                             </a>
-                         </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -51,17 +52,20 @@
                         </div>
                         <div class="row mb-3 border-bottom pb-3">
                             <div class="col-sm-4 text-muted">Ngày tạo</div>
-                            <div class="col-sm-8 fw-medium" th:text="${#temporals.format(user.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2024</div>
+                            <div class="col-sm-8 fw-medium"
+                                th:text="${#temporals.format(user.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2024</div>
                         </div>
                         <div class="row">
                             <div class="col-sm-4 text-muted">Cập nhật lần cuối</div>
-                            <div class="col-sm-8 fw-medium" th:text="${#temporals.format(user.updatedAt, 'dd/MM/yyyy HH:mm')}">01/01/2024</div>
+                            <div class="col-sm-8 fw-medium"
+                                th:text="${#temporals.format(user.updatedAt, 'dd/MM/yyyy HH:mm')}">01/01/2024</div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Student Information Card (Visible only if user is a student) -->
-                <div th:if="${user.role == T(com.nute.training.entity.User.Role).STUDENT and user.studentInfo != null}" class="card shadow-sm mb-4">
+                <div th:if="${user.role.name() == 'STUDENT'
+ and user.studentInfo != null}" class="card shadow-sm mb-4">
                     <div class="card-header bg-white py-3">
                         <h5 class="mb-0 fw-bold">Thông tin học viên</h5>
                     </div>
@@ -72,27 +76,24 @@
                         </div>
                         <div class="row mb-3 border-bottom pb-3">
                             <div class="col-sm-4 text-muted">Ngày sinh</div>
-                            <div class="col-sm-8 fw-medium" th:text="${#temporals.format(user.studentInfo.dateOfBirth, 'dd/MM/yyyy')}"></div>
+                            <div class="col-sm-8 fw-medium"
+                                th:text="${#temporals.format(user.studentInfo.dateOfBirth, 'dd/MM/yyyy')}"></div>
                         </div>
                         <div class="row mb-3 border-bottom pb-3">
-                            <div class="col-sm-4 text-muted">Giới tính</div>
-                            <div class="col-sm-8 fw-medium" th:text="${user.studentInfo.gender == T(com.nute.training.entity.StudentInfo.Gender).MALE ? 'Nam' : (user.studentInfo.gender == T(com.nute.training.entity.StudentInfo.Gender).FEMALE ? 'Nữ' : 'Khác')}"></div>
+                            <div class="col-sm-4 text-muted">Nơi sinh</div>
+                            <div class="col-sm-8 fw-medium" th:text="${user.studentInfo.placeOfBirth}"></div>
                         </div>
                         <div class="row mb-3 border-bottom pb-3">
                             <div class="col-sm-4 text-muted">Địa chỉ</div>
                             <div class="col-sm-8 fw-medium" th:text="${user.studentInfo.address}"></div>
                         </div>
                         <div class="row mb-3 border-bottom pb-3">
-                            <div class="col-sm-4 text-muted">Chuyên ngành</div>
+                            <div class="col-sm-4 text-muted">Ngành học</div>
                             <div class="col-sm-8 fw-medium" th:text="${user.studentInfo.major}"></div>
                         </div>
-                        <div class="row mb-3 border-bottom pb-3">
-                            <div class="col-sm-4 text-muted">Ngày nhập học</div>
-                            <div class="col-sm-8 fw-medium" th:text="${#temporals.format(user.studentInfo.enrollmentDate, 'dd/MM/yyyy')}"></div>
-                        </div>
                         <div class="row">
-                            <div class="col-sm-4 text-muted">Ngày tốt nghiệp</div>
-                            <div class="col-sm-8 fw-medium" th:text="${user.studentInfo.graduationDate != null ? #temporals.format(user.studentInfo.graduationDate, 'dd/MM/yyyy') : 'Chưa tốt nghiệp'}"></div>
+                            <div class="col-sm-4 text-muted">Lớp chuyên ngành</div>
+                            <div class="col-sm-8 fw-medium" th:text="${user.studentInfo.specializedClass}"></div>
                         </div>
                     </div>
                 </div>
@@ -103,31 +104,34 @@
                         <h5 class="mb-0 fw-bold">Quản lý tài khoản</h5>
                     </div>
                     <div class="card-body">
-                         <h6 class="mb-3 fw-bold">Đặt lại mật khẩu</h6>
-                         <form th:action="@{/admin/users/{id}/reset-password(id=${user.id})}" method="post" class="row g-3 align-items-end">
-                             <div class="col-md-8">
-                                 <label class="form-label text-muted small">Mật khẩu mới</label>
-                                 <input type="password" name="newPassword" class="form-control" required minlength="6">
-                             </div>
-                             <div class="col-md-4">
-                                 <button type="submit" class="btn btn-outline-warning w-100">
-                                     <i class="fas fa-key me-2"></i>Lưu mật khẩu
-                                 </button>
-                             </div>
-                         </form>
+                        <h6 class="mb-3 fw-bold">Đặt lại mật khẩu</h6>
+                        <form th:action="@{/admin/users/{id}/reset-password(id=${user.id})}" method="post"
+                            class="row g-3 align-items-end">
+                            <div class="col-md-8">
+                                <label class="form-label text-muted small">Mật khẩu mới</label>
+                                <input type="password" name="newPassword" class="form-control" required minlength="6">
+                            </div>
+                            <div class="col-md-4">
+                                <button type="submit" class="btn btn-outline-warning w-100">
+                                    <i class="fas fa-key me-2"></i>Lưu mật khẩu
+                                </button>
+                            </div>
+                        </form>
 
-                         <hr class="my-4">
+                        <hr class="my-4">
 
-                         <h6 class="mb-3 fw-bold text-danger">Vùng nguy hiểm</h6>
-                         <div class="d-flex justify-content-between align-items-center p-3 bg-danger bg-opacity-10 rounded">
-                             <div>
-                                 <div class="fw-bold text-danger">Xóa tài khoản này</div>
-                                 <div class="small text-muted">Hành động này không thể hoàn tác</div>
-                             </div>
-                             <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
-                                 Xóa người dùng
-                             </button>
-                         </div>
+                        <h6 class="mb-3 fw-bold text-danger">Vùng nguy hiểm</h6>
+                        <div
+                            class="d-flex justify-content-between align-items-center p-3 bg-danger bg-opacity-10 rounded">
+                            <div>
+                                <div class="fw-bold text-danger">Xóa tài khoản này</div>
+                                <div class="small text-muted">Hành động này không thể hoàn tác</div>
+                            </div>
+                            <button type="button" class="btn btn-danger" data-bs-toggle="modal"
+                                data-bs-target="#deleteModal">
+                                Xóa người dùng
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -156,4 +160,5 @@
         </div>
     </div>
 </body>
+
 </html>
