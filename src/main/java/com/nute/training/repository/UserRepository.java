@@ -1,5 +1,7 @@
 package com.nute.training.repository;
 
+import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.EntityGraph.EntityGraphType;
 import com.nute.training.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -75,4 +77,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
            "LOWER(u.email) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
            "LOWER(u.fullName) LIKE LOWER(CONCAT('%', :keyword, '%')))")
     List<User> searchUsersByRoleAndKeyword(@Param("role") User.Role role, @Param("keyword") String keyword);
+
+    /**
+     * Tìm user theo ID và fetch StudentInfo (nếu có)
+     */
+    @EntityGraph(value = "user-with-studentInfo-graph", type = EntityGraphType.LOAD)
+    @Query("SELECT u FROM User u WHERE u.id = :id")
+    Optional<User> findByIdWithStudentInfo(@Param("id") Long id);
 }

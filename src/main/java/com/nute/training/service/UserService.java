@@ -41,6 +41,14 @@ public class UserService {
     }
 
     /**
+     * Tìm user theo ID, bao gồm StudentInfo nếu user là học viên
+     */
+    @Transactional(readOnly = true)
+    public Optional<User> findUserDetailById(Long id) {
+        return userRepository.findByIdWithStudentInfo(id);
+    }
+
+    /**
      * Tìm user theo username
      */
     @Transactional(readOnly = true)

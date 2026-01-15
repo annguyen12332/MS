@@ -1,5 +1,5 @@
-package com.nute.training.entity;
 
+package com.nute.training.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -23,6 +23,10 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @SQLRestriction("deleted = false")
+@NamedEntityGraph(
+    name = "user-with-studentInfo-graph",
+    attributeNodes = @NamedAttributeNode("studentInfo")
+)
 public class User {
 
     @Id
@@ -77,6 +81,9 @@ public class User {
 
     @Column(name = "deleted_by")
     private String deletedBy;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private StudentInfo studentInfo;
 
     /**
      * Enum: Role

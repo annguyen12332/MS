@@ -80,6 +80,50 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Student Info Section -->
+                <div th:if="${user.role.name() == 'STUDENT'}" class="card shadow-sm mb-4">
+                    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 fw-bold">Thông tin sinh viên (Cấp chứng chỉ)</h5>
+                        <div th:if="${studentInfo == null}" class="badge bg-warning text-dark animate-pulse">
+                            <i class="fas fa-exclamation-triangle me-1"></i>Chưa cập nhật
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${studentInfo != null}">
+                            <div class="row mb-3 border-bottom pb-3">
+                                <div class="col-sm-4 text-muted">Mã sinh viên</div>
+                                <div class="col-sm-8 fw-bold text-primary" th:text="${studentInfo.studentCode}">SV123456</div>
+                            </div>
+                            <div class="row mb-3 border-bottom pb-3">
+                                <div class="col-sm-4 text-muted">Ngày sinh</div>
+                                <div class="col-sm-8 fw-medium" th:text="${#temporals.format(studentInfo.dateOfBirth, 'dd/MM/yyyy')}">01/01/2000</div>
+                            </div>
+                            <div class="row mb-3 border-bottom pb-3">
+                                <div class="col-sm-4 text-muted">Nơi sinh</div>
+                                <div class="col-sm-8 fw-medium" th:text="${studentInfo.placeOfBirth}">Hà Nội</div>
+                            </div>
+                            <div class="row mb-3 border-bottom pb-3">
+                                <div class="col-sm-4 text-muted">Địa chỉ</div>
+                                <div class="col-sm-8 fw-medium" th:text="${studentInfo.address}">Địa chỉ đầy đủ</div>
+                            </div>
+                            <div class="row mb-3 border-bottom pb-3">
+                                <div class="col-sm-4 text-muted">Ngành học</div>
+                                <div class="col-sm-8 fw-medium" th:text="${studentInfo.major}">Công nghệ thông tin</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-4 text-muted">Lớp chuyên ngành</div>
+                                <div class="col-sm-8 fw-medium" th:text="${studentInfo.specializedClass}">K65A-CNTT</div>
+                            </div>
+                        </div>
+                        <div th:if="${studentInfo == null}" class="text-center py-4">
+                            <p class="text-muted">Bạn chưa cập nhật thông tin sinh viên cần thiết để cấp chứng chỉ.</p>
+                            <a th:href="@{/profile/edit}" class="btn btn-warning">
+                                <i class="fas fa-user-edit me-2"></i>Cập nhật ngay
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

@@ -60,6 +60,43 @@
                     </div>
                 </div>
 
+                <!-- Student Information Card (Visible only if user is a student) -->
+                <div th:if="${user.role == T(com.nute.training.entity.User.Role).STUDENT and user.studentInfo != null}" class="card shadow-sm mb-4">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0 fw-bold">Thông tin học viên</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3 border-bottom pb-3">
+                            <div class="col-sm-4 text-muted">Mã học viên</div>
+                            <div class="col-sm-8 fw-medium" th:text="${user.studentInfo.studentCode}"></div>
+                        </div>
+                        <div class="row mb-3 border-bottom pb-3">
+                            <div class="col-sm-4 text-muted">Ngày sinh</div>
+                            <div class="col-sm-8 fw-medium" th:text="${#temporals.format(user.studentInfo.dateOfBirth, 'dd/MM/yyyy')}"></div>
+                        </div>
+                        <div class="row mb-3 border-bottom pb-3">
+                            <div class="col-sm-4 text-muted">Giới tính</div>
+                            <div class="col-sm-8 fw-medium" th:text="${user.studentInfo.gender == T(com.nute.training.entity.StudentInfo.Gender).MALE ? 'Nam' : (user.studentInfo.gender == T(com.nute.training.entity.StudentInfo.Gender).FEMALE ? 'Nữ' : 'Khác')}"></div>
+                        </div>
+                        <div class="row mb-3 border-bottom pb-3">
+                            <div class="col-sm-4 text-muted">Địa chỉ</div>
+                            <div class="col-sm-8 fw-medium" th:text="${user.studentInfo.address}"></div>
+                        </div>
+                        <div class="row mb-3 border-bottom pb-3">
+                            <div class="col-sm-4 text-muted">Chuyên ngành</div>
+                            <div class="col-sm-8 fw-medium" th:text="${user.studentInfo.major}"></div>
+                        </div>
+                        <div class="row mb-3 border-bottom pb-3">
+                            <div class="col-sm-4 text-muted">Ngày nhập học</div>
+                            <div class="col-sm-8 fw-medium" th:text="${#temporals.format(user.studentInfo.enrollmentDate, 'dd/MM/yyyy')}"></div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-4 text-muted">Ngày tốt nghiệp</div>
+                            <div class="col-sm-8 fw-medium" th:text="${user.studentInfo.graduationDate != null ? #temporals.format(user.studentInfo.graduationDate, 'dd/MM/yyyy') : 'Chưa tốt nghiệp'}"></div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Change Password / Actions -->
                 <div class="card shadow-sm">
                     <div class="card-header bg-white py-3">

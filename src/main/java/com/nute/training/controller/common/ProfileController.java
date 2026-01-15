@@ -4,6 +4,7 @@ import com.nute.training.entity.User;
 import com.nute.training.service.UserService;
 import com.nute.training.util.AuthenticationHelper;
 import jakarta.validation.Valid;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
@@ -24,6 +25,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class ProfileController {
 
     private final UserService userService;
+    private final com.nute.training.service.StudentInfoService studentInfoService;
     private final AuthenticationHelper authenticationHelper;
 
     /**
@@ -46,6 +48,11 @@ public class ProfileController {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         model.addAttribute("user", currentUser);
+        
+        if (currentUser.getRole() == User.Role.STUDENT) {
+            model.addAttribute("studentInfo", studentInfoService.findByUserId(currentUser.getId()).orElse(null));
+        }
+        
         model.addAttribute("layoutPath", getLayoutPath(currentUser.getRole()));
         return "profile/view";
     }
@@ -59,39 +66,48 @@ public class ProfileController {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         model.addAttribute("user", currentUser);
+        
+        if (currentUser.getRole() == User.Role.STUDENT) {
+            model.addAttribute("studentInfo", studentInfoService.findByUserId(currentUser.getId()).orElse(new com.nute.training.entity.StudentInfo()));
+        }
+        
         model.addAttribute("layoutPath", getLayoutPath(currentUser.getRole()));
         return "profile/edit";
     }
 
     /**
-     * Xử lý cập nhật hồ sơ cá nhân
+     * Xử lý cập nhật hồ sơ cá nhân và thông tin sinh viên
      */
     @PostMapping("/update")
     public String updateProfile(@Valid @ModelAttribute("user") User userDetails,
                                 BindingResult result,
-                                RedirectAttributes redirectAttributes) {
+                                @ModelAttribute("studentInfo") com.nute.training.entity.StudentInfo studentInfo,
+                                RedirectAttributes redirectAttributes,
+                                Model model) {
         User currentUser = authenticationHelper.getCurrentUser()
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         if (!currentUser.getId().equals(userDetails.getId())) {
-            // Prevent users from updating other user's profiles
             throw new AccessDeniedException("Bạn không có quyền chỉnh sửa hồ sơ của người khác.");
         }
 
-        // Remove password validation for profile update
-        // (password is updated via change-password, not here)
-        // result.removeFieldError("password"); // Method undefined
         if (result.hasErrors()) {
-             // If only password error, ignore it
-             if (result.getErrorCount() == 1 && result.hasFieldErrors("password")) {
-                 // Proceed
-             } else {
-                 return "profile/edit";
-             }
+            // Check if only password error (which is expected as it's not in the form)
+            if (!(result.getErrorCount() == 1 && result.hasFieldErrors("password"))) {
+                model.addAttribute("layoutPath", getLayoutPath(currentUser.getRole()));
+                return "profile/edit";
+            }
         }
 
         try {
-            userService.updateUserProfile(currentUser.getId(), userDetails); // Need to create this method in UserService
+            // Update basic info
+            userService.updateUserProfile(currentUser.getId(), userDetails);
+            
+            // Update student info if role is STUDENT
+            if (currentUser.getRole() == User.Role.STUDENT && studentInfo != null) {
+                studentInfoService.saveOrUpdate(currentUser.getId(), studentInfo);
+            }
+            
             redirectAttributes.addFlashAttribute("success", "Cập nhật hồ sơ thành công!");
             return "redirect:/profile";
         } catch (Exception e) {
@@ -141,5 +157,12 @@ public class ProfileController {
             redirectAttributes.addFlashAttribute("error", "Lỗi khi đổi mật khẩu: " + e.getMessage());
             return "redirect:/profile/change-password";
         }
+    }
+
+    @PostMapping("/clear-incomplete-message")
+    @ResponseBody
+    public String clearIncompleteMessage(HttpServletRequest request) {
+        request.getSession().removeAttribute("profileIncompleteMessage");
+        return "ok";
     }
 }

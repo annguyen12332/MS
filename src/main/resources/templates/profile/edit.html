@@ -22,6 +22,14 @@
                             <i class="fas fa-exclamation-circle me-2"></i><span th:text="${error}"></span>
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
+                        
+                        <!-- Profile Incomplete Message from Session -->
+                        <div th:if="${session.profileIncompleteMessage}" class="alert alert-warning alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <span th:text="${session.profileIncompleteMessage}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" 
+                                    onclick="fetch('/profile/clear-incomplete-message', {method: 'POST'})"></button>
+                        </div>
 
                         <form th:action="@{/profile/update}" method="post" th:object="${user}">
                             <input type="hidden" th:field="*{id}">
@@ -60,6 +68,50 @@
                                 <div class="col-md-6">
                                     <label for="phone" class="form-label">Số điện thoại</label>
                                     <input type="text" class="form-control" id="phone" th:field="*{phone}">
+                                </div>
+                            </div>
+
+                            <!-- Student Info Fields (Only for Students) -->
+                            <div th:if="${user.role.name() == 'STUDENT'}" class="mt-5">
+                                <hr>
+                                <h5 class="mb-3 fw-bold text-primary">Thông tin sinh viên (Bắt buộc để cấp chứng chỉ)</h5>
+                                
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    Vui lòng cung cấp thông tin chính xác. Các thông tin này sẽ được sử dụng để in trên chứng chỉ của bạn sau khi hoàn thành khóa đào tạo.
+                                </div>
+
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label for="studentCode" class="form-label">Mã sinh viên <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="studentCode" name="studentCode" 
+                                               th:value="${studentInfo?.studentCode}" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="dateOfBirth" class="form-label">Ngày sinh <span class="text-danger">*</span></label>
+                                        <input type="date" class="form-control" id="dateOfBirth" name="dateOfBirth" 
+                                               th:value="${studentInfo?.dateOfBirth}" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="placeOfBirth" class="form-label">Nơi sinh <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="placeOfBirth" name="placeOfBirth" 
+                                               th:value="${studentInfo?.placeOfBirth}" required placeholder="Ví dụ: Hà Nội">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="specializedClass" class="form-label">Lớp chuyên ngành <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="specializedClass" name="specializedClass" 
+                                               th:value="${studentInfo?.specializedClass}" required placeholder="Ví dụ: K65A-CNTT">
+                                    </div>
+                                    <div class="col-md-12">
+                                        <label for="major" class="form-label">Ngành học <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="major" name="major" 
+                                               th:value="${studentInfo?.major}" required placeholder="Ví dụ: Công nghệ thông tin">
+                                    </div>
+                                    <div class="col-md-12">
+                                        <label for="address" class="form-label">Địa chỉ <span class="text-danger">*</span></label>
+                                        <textarea class="form-control" id="address" name="address" rows="2" 
+                                                  required th:text="${studentInfo?.address}" placeholder="Số nhà, phố, phường/xã, quận/huyện, tỉnh/thành phố"></textarea>
+                                    </div>
                                 </div>
                             </div>
 

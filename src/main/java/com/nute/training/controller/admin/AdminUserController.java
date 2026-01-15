@@ -201,7 +201,7 @@ public class AdminUserController {
     public String view(@PathVariable Long id, Model model,
                       RedirectAttributes redirectAttributes) {
         try {
-            User user = userService.findById(id)
+            User user = userService.findUserDetailById(id)
                     .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
 
             model.addAttribute("user", user);
