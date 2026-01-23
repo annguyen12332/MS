@@ -83,6 +83,9 @@
                             Bảng điểm lớp học
                         </h5>
                         <div>
+                            <a th:href="@{/teacher/grades/class/{id}/export(id=${classEntity.id})}" class="btn btn-success btn-sm me-3">
+                                <i class="fas fa-file-excel me-1"></i> Xuất Excel
+                            </a>
                             <span class="text-muted me-3">
                                 <i class="fas fa-users me-1"></i>
                                 Tổng: <strong th:text="${#lists.size(enrollments)}">0</strong> học viên

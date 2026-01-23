@@ -6,10 +6,14 @@ import com.nute.training.entity.Grade;
 import com.nute.training.entity.User;
 import com.nute.training.service.ClassService;
 import com.nute.training.service.EnrollmentService;
+import com.nute.training.service.GradeExportService;
 import com.nute.training.service.GradeService;
 import com.nute.training.util.AuthenticationHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -32,6 +36,7 @@ public class TeacherGradeController {
     private final ClassService classService;
     private final EnrollmentService enrollmentService;
     private final GradeService gradeService;
+    private final GradeExportService gradeExportService;
     private final AuthenticationHelper authenticationHelper;
 
     /**
@@ -83,6 +88,44 @@ public class TeacherGradeController {
             log.error("Error loading class grades", e);
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/teacher/grades";
+        }
+    }
+
+    /**
+     * Xuất bảng điểm ra Excel
+     */
+    @GetMapping("/class/{classId}/export")
+    public ResponseEntity<byte[]> exportGrades(@PathVariable Long classId) {
+        try {
+            User currentTeacher = authenticationHelper.getCurrentUser()
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            ClassEntity classEntity = classService.findById(classId)
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy lớp học"));
+
+            // Verify teacher
+            if (classEntity.getTeacher() == null ||
+                !classEntity.getTeacher().getId().equals(currentTeacher.getId())) {
+                throw new RuntimeException("Bạn không phải giảng viên của lớp này");
+            }
+
+            // Lấy dữ liệu
+            List<Enrollment> enrollments = enrollmentService.findApprovedEnrollmentsByClass(classEntity);
+            List<Grade> grades = gradeService.findGradesByClass(classId);
+
+            // Tạo file Excel
+            byte[] content = gradeExportService.exportClassGrades(classEntity, enrollments, grades);
+
+            String filename = "Bang_Diem_" + classEntity.getClassCode() + "_" + java.time.LocalDate.now() + ".xlsx";
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
+                    .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                    .body(content);
+
+        } catch (Exception e) {
+            log.error("Error exporting grades", e);
+            return ResponseEntity.internalServerError().build();
         }
     }
 
