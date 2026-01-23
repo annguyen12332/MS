@@ -33,6 +33,7 @@ public class ClassEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "teacher_id")
+    @NotNull(message = "Giảng viên không được để trống")
     private User teacher;
 
     @Column(name = "class_code", unique = true, nullable = false, length = 20)

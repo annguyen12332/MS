@@ -163,4 +163,10 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
             @Param("startTime") java.time.LocalTime startTime,
             @Param("endTime") java.time.LocalTime endTime
     );
+
+    /**
+     * Tìm số buổi lớn nhất hiện tại của lớp
+     */
+    @Query("SELECT MAX(s.sessionNumber) FROM Schedule s WHERE s.classEntity = :classEntity")
+    Integer findMaxSessionNumberByClass(@Param("classEntity") ClassEntity classEntity);
 }

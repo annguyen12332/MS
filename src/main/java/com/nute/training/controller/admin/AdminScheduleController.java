@@ -115,6 +115,64 @@ public class AdminScheduleController {
     }
 
     /**
+     * Form tạo lịch học hàng loạt
+     */
+    @GetMapping("/class/{classId}/bulk-create")
+    public String bulkCreateForm(@PathVariable Long classId, Model model,
+                            RedirectAttributes redirectAttributes) {
+        try {
+            var classEntity = classService.findById(classId)
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy lớp học"));
+
+            com.nute.training.dto.BulkScheduleCreateDto dto = new com.nute.training.dto.BulkScheduleCreateDto();
+            dto.setClassId(classId);
+            // Default room
+            dto.setRoom(classEntity.getRoom());
+
+            model.addAttribute("dto", dto);
+            model.addAttribute("classEntity", classEntity);
+            return "admin/schedules/bulk-form";
+        } catch (Exception e) {
+            log.error("Error loading bulk create form", e);
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/admin/classes";
+        }
+    }
+
+    /**
+     * Xử lý tạo lịch học hàng loạt
+     */
+    @PostMapping("/bulk-create")
+    public String bulkCreate(@Valid @ModelAttribute("dto") com.nute.training.dto.BulkScheduleCreateDto dto,
+                        BindingResult result,
+                        Model model,
+                        RedirectAttributes redirectAttributes) {
+
+        if (result.hasErrors()) {
+            if (dto.getClassId() != null) {
+                classService.findById(dto.getClassId())
+                        .ifPresent(c -> model.addAttribute("classEntity", c));
+            }
+            return "admin/schedules/bulk-form";
+        }
+
+        try {
+            var schedules = scheduleService.generateBatchSchedules(dto);
+            redirectAttributes.addFlashAttribute("success",
+                    "Đã tạo thành công " + schedules.size() + " buổi học");
+            return "redirect:/admin/schedules/class/" + dto.getClassId();
+        } catch (Exception e) {
+            log.error("Error bulk creating schedules", e);
+            if (dto.getClassId() != null) {
+                classService.findById(dto.getClassId())
+                        .ifPresent(c -> model.addAttribute("classEntity", c));
+            }
+            model.addAttribute("error", e.getMessage());
+            return "admin/schedules/bulk-form";
+        }
+    }
+
+    /**
      * Form chỉnh sửa lịch học
      */
     @GetMapping("/{id}/edit")

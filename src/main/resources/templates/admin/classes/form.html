@@ -34,7 +34,8 @@
 
                                 <div class="col-md-6">
                                     <label for="course" class="form-label">Khóa học <span class="text-danger">*</span></label>
-                                    <select class="form-select" id="course" th:field="*{course}">
+                                    <select class="form-select" id="course" th:field="*{course}" required>
+                                        <option value="">-- Chọn khóa học --</option>
                                         <option th:each="c : ${courses}" 
                                                 th:value="${c.id}" 
                                                 th:text="${c.name}"></option>
@@ -42,13 +43,15 @@
                                 </div>
 
                                 <div class="col-md-6">
-                                    <label for="teacher" class="form-label">Giảng viên</label>
-                                    <select class="form-select" id="teacher" th:field="*{teacher}">
+                                    <label for="teacher" class="form-label">Giảng viên <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="teacher" th:field="*{teacher}" 
+                                            th:classappend="${#fields.hasErrors('teacher')} ? 'is-invalid'" required>
                                         <option value="">-- Chọn giảng viên --</option>
                                         <option th:each="t : ${teachers}" 
                                                 th:value="${t.id}" 
                                                 th:text="${t.fullName}"></option>
                                     </select>
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('teacher')}" th:errors="*{teacher}">Error</div>
                                 </div>
 
                                 <div class="col-md-6">

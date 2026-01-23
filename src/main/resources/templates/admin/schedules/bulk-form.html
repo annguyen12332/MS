@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      th:replace="~{admin/layout :: layout(~{::title}, ~{::content}, ~{}, ~{})}">
+<head>
+    <title>Tạo lịch học hàng loạt</title>
+</head>
+<body>
+    <div th:fragment="content">
+        <div class="row justify-content-center">
+            <div class="col-12 col-lg-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0 fw-bold">Tạo lịch học hàng loạt</h5>
+                        <div class="small text-muted mt-1">Lớp: <span th:text="${classEntity.className}">Class</span></div>
+                        <div class="small text-muted">Thời gian: <span th:text="${#temporals.format(classEntity.startDate, 'dd/MM/yyyy')}">Start</span> - <span th:text="${#temporals.format(classEntity.endDate, 'dd/MM/yyyy')}">End</span></div>
+                    </div>
+                    <div class="card-body p-4">
+                        <div th:if="${error}" class="alert alert-danger" role="alert" th:text="${error}"></div>
+                        
+                        <form th:action="@{/admin/schedules/bulk-create}" method="post" th:object="${dto}">
+                            
+                            <input type="hidden" th:field="*{classId}">
+                            
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Chọn ngày học trong tuần <span class="text-danger">*</span></label>
+                                <div class="row g-2">
+                                    <div class="col-auto">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" id="mon" th:field="*{daysOfWeek}" value="1">
+                                            <label class="form-check-label" for="mon">Thứ 2</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" id="tue" th:field="*{daysOfWeek}" value="2">
+                                            <label class="form-check-label" for="tue">Thứ 3</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" id="wed" th:field="*{daysOfWeek}" value="3">
+                                            <label class="form-check-label" for="wed">Thứ 4</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" id="thu" th:field="*{daysOfWeek}" value="4">
+                                            <label class="form-check-label" for="thu">Thứ 5</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" id="fri" th:field="*{daysOfWeek}" value="5">
+                                            <label class="form-check-label" for="fri">Thứ 6</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" id="sat" th:field="*{daysOfWeek}" value="6">
+                                            <label class="form-check-label" for="sat">Thứ 7</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" id="sun" th:field="*{daysOfWeek}" value="7">
+                                            <label class="form-check-label" for="sun">CN</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div th:if="${#fields.hasErrors('daysOfWeek')}" class="text-danger small mt-1" th:errors="*{daysOfWeek}">Error</div>
+                            </div>
+
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="startTime" class="form-label">Giờ bắt đầu <span class="text-danger">*</span></label>
+                                    <input type="time" class="form-control" id="startTime" th:field="*{startTime}" required>
+                                    <div th:if="${#fields.hasErrors('startTime')}" class="text-danger small" th:errors="*{startTime}">Error</div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="endTime" class="form-label">Giờ kết thúc <span class="text-danger">*</span></label>
+                                    <input type="time" class="form-control" id="endTime" th:field="*{endTime}" required>
+                                    <div th:if="${#fields.hasErrors('endTime')}" class="text-danger small" th:errors="*{endTime}">Error</div>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <label for="room" class="form-label">Phòng học</label>
+                                    <input type="text" class="form-control" id="room" th:field="*{room}">
+                                </div>
+                            </div>
+
+                            <div class="alert alert-info mt-4">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Hệ thống sẽ tự động tạo các buổi học từ ngày 
+                                <strong th:text="${#temporals.format(classEntity.startDate, 'dd/MM/yyyy')}">Start</strong> 
+                                đến ngày 
+                                <strong th:text="${#temporals.format(classEntity.endDate, 'dd/MM/yyyy')}">End</strong>
+                                tương ứng với các thứ đã chọn.
+                            </div>
+
+                            <div class="mt-4 d-flex justify-content-end gap-2">
+                                <a th:href="@{/admin/schedules/class/{id}(id=${classEntity.id})}" class="btn btn-light">Hủy bỏ</a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-calendar-plus me-2"></i>Tạo lịch tự động
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

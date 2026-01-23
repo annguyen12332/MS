@@ -3,6 +3,7 @@ package com.nute.training.service;
 import com.nute.training.entity.ClassEntity;
 import com.nute.training.entity.Schedule;
 import com.nute.training.entity.User;
+import com.nute.training.repository.ClassRepository;
 import com.nute.training.repository.ScheduleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +26,7 @@ import java.util.Optional;
 public class ScheduleService {
 
     private final ScheduleRepository scheduleRepository;
+    private final ClassRepository classRepository;
 
     /**
      * Tìm tất cả lịch học
@@ -147,6 +149,52 @@ public class ScheduleService {
         Schedule saved = scheduleRepository.save(schedule);
         log.info("Schedule created successfully with ID: {}", saved.getId());
         return saved;
+    }
+
+    /**
+     * Tạo lịch học hàng loạt
+     */
+    public List<Schedule> generateBatchSchedules(com.nute.training.dto.BulkScheduleCreateDto dto) {
+        log.info("Generating batch schedules for class ID: {}", dto.getClassId());
+
+        ClassEntity classEntity = classRepository.findById(dto.getClassId())
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy lớp học"));
+
+        if (classEntity.getStartDate() == null || classEntity.getEndDate() == null) {
+            throw new IllegalArgumentException("Lớp học chưa có ngày bắt đầu hoặc kết thúc");
+        }
+
+        Integer currentMaxSession = scheduleRepository.findMaxSessionNumberByClass(classEntity);
+        int nextSessionNumber = (currentMaxSession != null) ? currentMaxSession + 1 : 1;
+
+        List<Schedule> createdSchedules = new java.util.ArrayList<>();
+        LocalDate currentDate = classEntity.getStartDate();
+
+        while (!currentDate.isAfter(classEntity.getEndDate())) {
+            // Check if current date matches selected days
+            // java.time.DayOfWeek value: 1 (Mon) -> 7 (Sun)
+            if (dto.getDaysOfWeek() != null && dto.getDaysOfWeek().contains(currentDate.getDayOfWeek().getValue())) {
+                Schedule schedule = new Schedule();
+                schedule.setClassEntity(classEntity);
+                schedule.setSessionNumber(nextSessionNumber++);
+                schedule.setSessionDate(currentDate);
+                schedule.setStartTime(dto.getStartTime());
+                schedule.setEndTime(dto.getEndTime());
+                schedule.setRoom(dto.getRoom() != null && !dto.getRoom().isEmpty() ? dto.getRoom() : classEntity.getRoom());
+                schedule.setStatus(Schedule.ScheduleStatus.SCHEDULED);
+
+                // Create schedule (reuses validation logic)
+                // Note: createSchedule throws RuntimeException on conflict, which will rollback transaction
+                createdSchedules.add(createSchedule(schedule));
+            }
+            currentDate = currentDate.plusDays(1);
+        }
+
+        if (createdSchedules.isEmpty()) {
+            throw new IllegalArgumentException("Không có lịch học nào được tạo. Vui lòng kiểm tra ngày bắt đầu/kết thúc và các ngày trong tuần đã chọn.");
+        }
+        
+        return createdSchedules;
     }
 
     /**
